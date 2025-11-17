@@ -1,0 +1,61 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Frontend
+node_modules/
+frontend/.env*
+frontend/dist/
+frontend/.next/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# FAISS Index
+backend/data/index/*
+!backend/data/index/.gitkeep
+
+# PDFs (optional, if you want to exclude)
+# backend/data/pdfs/*
+# !backend/data/pdfs/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Misc
+*.log
