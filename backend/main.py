@@ -7,7 +7,7 @@ Define endpoints:
 """
 
 import time
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models import AskRequest, AskResponse, Source
 from backend.rag import search, generate_answer, load_embedder
@@ -130,6 +130,63 @@ async def ask(request: AskRequest) -> AskResponse:
             status_code=500,
             detail=f"Erro ao processar pergunta: {str(e)}"
         )
+
+
+@app.post("/ask-raw", response_model=AskResponse)
+async def ask_raw(request: Request) -> AskResponse:
+    """Fallback endpoint that reads raw JSON body and processes the question.
+    Useful when automatic parsing fails (debugging for proxies or client quoting issues).
+    """
+    start_time = time.time()
+    try:
+        body = await request.json()
+    except Exception as e:
+        print(f"✗ Erro ao ler JSON bruto: {e}")
+        raise HTTPException(status_code=400, detail=f"JSON inválido: {e}")
+
+    try:
+        question = str(body.get("question", "")).strip()
+        if len(question) < 3:
+            raise HTTPException(status_code=400, detail="A pergunta deve ter pelo menos 3 caracteres")
+
+        contexts = search(query=question, top_k=settings.TOP_K, min_sim=settings.MIN_SIM)
+        answer = generate_answer(question, contexts)
+
+        resposta_padrao = "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
+        if answer.strip() == resposta_padrao:
+            sources = []
+        else:
+            sources_dict = {}
+            for ctx in contexts:
+                key = (ctx["title"], ctx["page_start"], ctx["page_end"], ctx["uri"])
+                if key not in sources_dict:
+                    sources_dict[key] = ctx.get("score")
+            sources = [
+                Source(
+                    title=title,
+                    page_start=page_start,
+                    page_end=page_end,
+                    uri=uri,
+                    score=score
+                )
+                for (title, page_start, page_end, uri), score in sources_dict.items()
+            ]
+
+        elapsed = time.time() - start_time
+        meta = {
+            "latency_ms": round(elapsed * 1000, 2),
+            "top_k": settings.TOP_K,
+            "min_sim": settings.MIN_SIM,
+            "num_contexts": len(contexts)
+        }
+
+        return AskResponse(answer=answer, sources=sources, meta=meta)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"✗ Erro ao processar pergunta (raw): {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao processar pergunta: {e}")
 
 
 if __name__ == "__main__":
