@@ -3,13 +3,14 @@ FastAPI application.
 Define endpoints:
   - GET /healthz - health check
   - POST /ask - responde pergunta com RAG
+  - GET /warmup - pre-loads embedding model
 """
 
 import time
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models import AskRequest, AskResponse, Source
-from backend.rag import search, generate_answer
+from backend.rag import search, generate_answer, load_embedder
 from backend import settings
 
 
@@ -23,7 +24,13 @@ app = FastAPI(
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "https://*.vercel.app",  # Vercel deployments
+        "https://aiye.vercel.app",  # Production frontend
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,6 +41,16 @@ app.add_middleware(
 async def health():
     """Health check endpoint."""
     return {"status": "ok"}
+
+
+@app.get("/warmup")
+async def warmup():
+    """Pre-loads the embedding model. Call this after deployment to warm up the backend."""
+    try:
+        load_embedder()
+        return {"status": "ready", "message": "Embedding model loaded successfully"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 @app.post("/ask", response_model=AskResponse)
