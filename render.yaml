@@ -2,9 +2,10 @@ services:
   - type: web
     name: aiye-api
     runtime: python
-    pythonVersion: 3.12
+    pythonVersion: 3.11
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
-    buildCommand: pip install -r backend/requirements.txt && python backend/init_index.py && python backend/warmup.py
+    # Use --prefer-binary to prefer prebuilt wheels and reduce build-time compilations
+    buildCommand: pip install --prefer-binary -r backend/requirements.txt && python backend/init_index.py && python backend/warmup.py
     rootDir: .
     envVars:
       - key: GOOGLE_API_KEY
