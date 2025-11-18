@@ -9,7 +9,7 @@ import time
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models import AskRequest, AskResponse, Source
-from backend.rag import search, generate_answer, load_embedder
+from backend.rag import search, generate_answer
 from backend import settings
 
 
@@ -28,18 +28,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# Carrega embedder ao iniciar a app
-@app.on_event("startup")
-async def startup_event():
-    """Carrega o modelo de embedding na memória ao iniciar."""
-    print("🚀 Iniciando servidor...")
-    try:
-        load_embedder()
-        print("✓ Modelo de embedding carregado com sucesso")
-    except Exception as e:
-        print(f"✗ Erro ao carregar embedding: {e}")
 
 
 @app.get("/healthz")
