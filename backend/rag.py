@@ -265,16 +265,16 @@ def search(
     distances = distances[0]
     indices = indices[0]
     
+    # Constrói resultados
+    chunks_metadata = metadata.get("chunks", [])
+    docs_metadata = {doc["document_id"]: doc for doc in metadata.get("documents", [])}
+    
     print(f"🔍 Busca: '{query}' | Top-{top_k} | min_sim={min_sim}")
     print(f"   Scores retornados: {distances.tolist()}")
     print(f"   Índices retornados: {indices.tolist()}")
     print(f"   Total de chunks em metadata: {len(chunks_metadata)}")
     
-    # Constrói resultados
     results = []
-    chunks_metadata = metadata.get("chunks", [])
-    docs_metadata = {doc["document_id"]: doc for doc in metadata.get("documents", [])}
-    
     print(f"   Iniciando loop com {len(list(zip(distances, indices)))} items")
     
     for i, (distance, idx) in enumerate(zip(distances, indices)):
