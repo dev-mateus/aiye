@@ -3,12 +3,18 @@ Script para inicializar o índice FAISS na primeira execução.
 Roda automaticamente se o índice não existir.
 """
 import os
+import sys
 from pathlib import Path
-from backend.rag import load_or_create_index
-from backend import settings
+
+# Adiciona o diretório raiz ao PYTHONPATH
+repo_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(repo_root))
 
 def init_index():
     """Inicializa o índice FAISS se não existir."""
+    from backend import settings
+    from backend.rag import load_or_create_index
+    
     index_path = Path(settings.INDEX_DIR) / "index.faiss"
     
     if index_path.exists():
@@ -37,6 +43,9 @@ def init_index():
         print("✅ Índice inicializado com sucesso!")
     except Exception as e:
         print(f"❌ Erro ao inicializar: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     init_index()

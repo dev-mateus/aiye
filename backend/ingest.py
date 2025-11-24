@@ -79,5 +79,9 @@ def main():
     print("="*60)
 
 
+# Alias para compatibilidade
+ingest_all_pdfs = main
+
+
 if __name__ == "__main__":
     main()
