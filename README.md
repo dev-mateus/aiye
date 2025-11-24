@@ -1,3 +1,15 @@
+---
+title: Aiye
+emoji: 🌿
+colorFrom: green
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+short_description: Plataforma RAG para perguntas sobre Umbanda
+---
+
 # Aiye – Plataforma de Perguntas sobre Umbanda
 
 Uma plataforma **local-first** para responder perguntas sobre Umbanda utilizando **RAG (Retrieval-Augmented Generation)** com embeddings vetoriais e integração com Google Gemini.
