@@ -1,13 +1,11 @@
-# Configuração para Xet storage (Hugging Face)
-# Xet é recomendado para arquivos grandes ao invés de Git LFS
+# Configuração para Git LFS (Hugging Face Spaces)
+# Arquivos grandes devem usar LFS para evitar rejeição no push
 
-# PDFs - usar Xet storage
-backend/data/pdfs/*.pdf filter=xet diff=xet merge=xet -text
-# FAISS index files (se commitados no futuro)
-backend/data/index/*.faiss filter=xet diff=xet merge=xet -text
-# Arquivos grandes de modelos (se houver)
-*.bin filter=xet diff=xet merge=xet -text
-*.pt filter=xet diff=xet merge=xet -text
-*.pth filter=xet diff=xet merge=xet -text
+# PDFs - usar LFS
 backend/data/pdfs/*.pdf filter=lfs diff=lfs merge=lfs -text
+# FAISS index files
 backend/data/index/*.faiss filter=lfs diff=lfs merge=lfs -text
+# Arquivos grandes de modelos
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
