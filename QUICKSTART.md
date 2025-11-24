@@ -1,97 +1,138 @@
-"""
-AIYE - GUIA DE INÍCIO RÁPIDO
+# AIYE - GUIA DE INÍCIO RÁPIDO
 
-✅ Plataforma de perguntas sobre Umbanda
+✅ Plataforma RAG de perguntas sobre Umbanda usando IA
 
-Próximas etapas:
-================
+## Acesso Rápido à Aplicação em Produção
 
-1. CONFIGURAR O AMBIENTE DO BACKEND
+🌐 **Frontend:** https://aiye-chat.vercel.app  
+🔧 **Backend API:** https://dev-mateus-backend-aiye.hf.space  
+📚 **Docs da API:** https://dev-mateus-backend-aiye.hf.space/docs
 
-   a) Navegar para a pasta raiz do projeto:
-      cd aiye
+---
 
-   b) Criar arquivo .env (copiar de .env.example):
-      cp .env.example .env
-      # ou no Windows:
-      copy .env.example .env
+## Desenvolvimento Local
 
-   c) Criar ambiente virtual Python:
-      python -m venv .venv
-      # Ativar:
-      # Windows:
-      .venv\Scripts\activate
-      # macOS/Linux:
-      source .venv/bin/activate
+### Pré-requisitos
 
-   d) Instalar dependências do backend:
-      pip install -r backend/requirements.txt
+- Python 3.11+
+- Node.js 18+
+- Google API Key (Gemini)
 
-2. INGERIR PDFS (OPCIONAL - Para Testar)
+### 1. CONFIGURAR O AMBIENTE DO BACKEND
 
-   a) Colocar alguns arquivos PDF em:
-      backend/data/pdfs/
+**a) Navegar para a pasta raiz do projeto:**
+```bash
+cd aiye
+```
 
-   b) Executar script de ingestão (recomendado usar como módulo):
-      # recomendado (preserva imports de pacote)
-      python -m backend.ingest
+**b) Criar arquivo `.env` com sua API key:**
+```bash
+# Windows:
+copy .env.example .env
 
-      # alternativa (há fallback no script que adiciona a raiz ao PYTHONPATH):
-      python backend/ingest.py
+# macOS/Linux:
+cp .env.example .env
+```
 
-   Isto criará:
-   - backend/data/index/index.faiss
-   - backend/data/index/metadata.json
+Edite o `.env` e adicione sua chave:
+```
+GOOGLE_API_KEY=sua_chave_aqui
+```
 
-3. INICIAR O BACKEND
+**c) Criar ambiente virtual Python:**
+```bash
+python -m venv .venv
 
-   Na pasta raiz com .venv ativado:
-   uvicorn backend.main:app --reload --port 8000
+# Ativar:
+# Windows:
+.venv\Scripts\activate
 
-   O servidor estará em: http://localhost:8000
-   Documentação interativa: http://localhost:8000/docs
+# macOS/Linux:
+source .venv/bin/activate
+```
 
-4. CONFIGURAR E INICIAR O FRONTEND
+**d) Instalar dependências do backend:**
+```bash
+pip install -r backend/requirements.txt
+```
 
-   a) Abrir outro terminal na pasta raiz
+### 2. INGERIR PDFS (Primeira vez ou ao adicionar novos PDFs)
 
-   b) Navegar para pasta frontend:
-      cd frontend
+**a) PDFs já incluídos:**
+O projeto já contém 7 PDFs sobre Umbanda e Espiritismo em `backend/data/pdfs/`
 
-   c) Criar arquivo .env.local:
-      # Windows (PowerShell):
-      echo "VITE_API_BASE=http://localhost:8000" > .env.local
-      # ou macOS/Linux:
-      echo "VITE_API_BASE=http://localhost:8000" > .env.local
+**b) Gerar índice FAISS:**
+```bash
+python backend/ingest.py
+```
 
-   d) Instalar dependências:
-      npm install
+Isto criará:
+- `backend/data/index/index.faiss` (~133 KB)
+- `backend/data/index/metadata.json` (~22 MB)
 
-   e) Iniciar servidor de desenvolvimento:
-      npm run dev
+### 3. INICIAR O BACKEND
 
-   O frontend estará em: http://localhost:5173
+Na pasta raiz com `.venv` ativado:
+```bash
+uvicorn backend.main:app --reload --port 8000
+```
 
-5. TESTAR O SISTEMA
+✅ Servidor rodando em: http://localhost:8000  
+📖 Documentação interativa: http://localhost:8000/docs
 
-   - Abra http://localhost:5173 no navegador
-   - Digite uma pergunta (mínimo 3 caracteres)
-   - Pressione "Perguntar" ou Ctrl+Enter
-   - A resposta será exibida com as fontes
+### 4. CONFIGURAR E INICIAR O FRONTEND
 
-ESTRUTURA DO PROJETO
-====================
+**a) Abrir outro terminal na pasta raiz**
 
+**b) Navegar para pasta frontend:**
+```bash
+cd frontend
+```
+
+**c) Criar arquivo `.env.local`:**
+```bash
+# Windows (PowerShell):
+echo "VITE_API_BASE=http://localhost:8000" > .env.local
+
+# macOS/Linux:
+echo "VITE_API_BASE=http://localhost:8000" > .env.local
+```
+
+**d) Instalar dependências:**
+```bash
+npm install
+```
+
+**e) Iniciar servidor de desenvolvimento:**
+```bash
+npm run dev
+```
+
+✅ Frontend rodando em: http://localhost:5173
+
+### 5. TESTAR O SISTEMA
+
+- Abra http://localhost:5173 no navegador
+- Digite uma pergunta (ex: "O que é Umbanda?")
+- Pressione "Perguntar" ou use Ctrl+Enter
+- A resposta será exibida com os documentos consultados---
+
+## ESTRUTURA DO PROJETO
+
+```
 aiye/
 ├── backend/                     # API FastAPI
-│   ├── main.py                 # Servidor FastAPI
+│   ├── main.py                 # Servidor FastAPI (dev)
+│   ├── app.py                  # Servidor FastAPI (produção HF)
 │   ├── rag.py                  # Lógica de RAG
 │   ├── models.py               # Modelos Pydantic
 │   ├── settings.py             # Configurações
 │   ├── ingest.py               # Script de ingestão
-│   ├── requirements.txt         # Dependências Python
+│   ├── init_index.py           # Inicialização do índice
+│   ├── warmup.py               # Script de warmup
+│   ├── requirements.txt        # Dependências Python
 │   └── data/
-│       ├── pdfs/               # PDFs para processar
+│       ├── pdfs/               # PDFs para processar (7 arquivos)
 │       └── index/              # Índice FAISS + metadados
 ├── frontend/                    # App React + Vite
 │   ├── src/
@@ -105,80 +146,135 @@ aiye/
 │   ├── tsconfig.json
 │   ├── tailwind.config.js
 │   └── index.html
-├── .env.example                 # Variáveis de exemplo
-├── .gitignore
-└── README.md
+├── Dockerfile                   # Container para HF Spaces
+├── .gitattributes              # Config Git LFS
+├── .env.example                # Variáveis de exemplo
+└── *.md                        # Documentação
+```
 
-FEATURES IMPLEMENTADAS
-======================
+## FEATURES IMPLEMENTADAS
 
-✓ Backend FastAPI com endpoints /healthz, /warmup e /ask
-✓ RAG com FAISS (busca vetorial local)
-✓ Embeddings HuggingFace (all-MiniLM-L6-v2)
-✓ Integração com Google Gemini 2.5 Flash para respostas
-✓ Parsing de PDFs com PyMuPDF
-✓ Chunking com overlap (1500 chars)
-✓ Frontend React + TypeScript + Tailwind
-✓ Interface personalizada "Aiye" com tema verde
-✓ Visualização de fontes citadas
-✓ Sistema de metadados em JSON
-✓ Deploy Hugging Face Spaces (backend) + Vercel (frontend)
-✓ Git LFS para PDFs e índices FAISS
-✓ Código tipado e comentado
-✓ Tratamento de erros robusto
+✅ **Backend:**
+- FastAPI com endpoints `/healthz`, `/warmup` e `/ask`
+- RAG completo com FAISS (busca vetorial local)
+- Embeddings HuggingFace (all-MiniLM-L6-v2, 384 dim)
+- Integração com Google Gemini 2.5 Flash
+- Parsing de PDFs com PyMuPDF
+- Chunking com overlap (1500 chars, 200 overlap)
+- Metadados completos em JSON
+- Logging detalhado para debug
+- CORS configurado
 
-DEPLOY EM PRODUÇÃO
-==================
+✅ **Frontend:**
+- Interface moderna estilo chat
+- Tema personalizado "Aiye" (verde/azul)
+- Visualização de fontes consultadas (sem download)
+- Loading states e error handling
+- Responsive design
+- TypeScript para type safety
 
-🎯 Arquitetura Atual:
-   Frontend (Vercel) → Backend (Hugging Face Spaces) → Gemini API
+✅ **Deploy:**
+- Backend no Hugging Face Spaces (Docker)
+- Frontend na Vercel
+- Git LFS para PDFs e índices
+- Deploy automático via Git push
+- Documentação completa
 
-1. Backend (Hugging Face Spaces):
-   - URL: https://dev-mateus-backend-aiye.hf.space
-   - Deploy via git push para branch main
-   - Configurar secret: GOOGLE_API_KEY=<sua-chave>
-   - PDFs e FAISS index via Git LFS
-   - Dockerfile com Python 3.11
-   - Guia completo: DEPLOY_HUGGINGFACE.md
+---
 
-   Deploy:
+## DEPLOY EM PRODUÇÃO
+
+### Arquitetura Atual
+
+**Frontend (Vercel)** → **Backend (Hugging Face Spaces)** → **Gemini API**
+
+### 1. Backend (Hugging Face Spaces)
+
+**URL:** https://dev-mateus-backend-aiye.hf.space
+
+**Passo a passo:**
+1. Configure Git LFS: `git lfs install`
+2. Adicione remote HF: `git remote add space https://huggingface.co/spaces/dev-mateus/backend-aiye`
+3. Configure secrets no HF Space: `GOOGLE_API_KEY`
+4. Faça deploy:
+   ```bash
    git push space main
+   ```
 
-2. Frontend (Vercel):
-   - URL: https://aiye.vercel.app
-   - Importar projeto do GitHub (branch main)
-   - Configurar variável: VITE_API_BASE=https://dev-mateus-backend-aiye.hf.space
-   - Deploy automático a cada push
+**Build automático:**
+- Dockerfile executa `backend/init_index.py`
+- PDFs e metadata.json baixados via Git LFS
+- Container inicia na porta 7860
+- Rebuild em ~5-10 minutos
 
-NOTAS IMPORTANTES
-=================
+Ver guia completo: [`DEPLOY_HUGGINGFACE.md`](./DEPLOY_HUGGINGFACE.md)
 
-1. O arquivo .env não deve ser commitado (está no .gitignore)
-2. Os índices FAISS são gerados automaticamente no deploy
-3. Configure GOOGLE_API_KEY para usar o Gemini
-4. PDFs devem estar em backend/data/pdfs/ e commitados no repo
-5. Consulte o README.md para mais informações
+### 2. Frontend (Vercel)
 
-ERROS COMUNS
-============
+**URL:** https://aiye-chat.vercel.app
 
-❌ "Backend não está disponível"
-   → Certifique-se que uvicorn está rodando em http://localhost:8000
+**Passo a passo:**
+1. Importe projeto do GitHub no Vercel
+2. Configure variável de ambiente:
+   - `VITE_API_BASE=https://dev-mateus-backend-aiye.hf.space`
+3. Deploy automático a cada push na branch `main`
 
-❌ "ModuleNotFoundError: No module named 'fastapi'"
-   → Verifique se .venv está ativado e pip install -r backend/requirements.txt foi executado
+**Build automático:**
+- Vite build com TypeScript check
+- Deploy em ~1-2 minutos
+- Preview deploys para cada PR
 
-❌ "npm: command not found"
-   → Instale Node.js em https://nodejs.org/
+---
 
-❌ "Nenhum arquivo PDF encontrado"
-   → Coloque PDFs em backend/data/pdfs/ e execute python backend/ingest.py
+## NOTAS IMPORTANTES
 
-SUPORTE
-=======
+1. O arquivo `.env` não deve ser commitado (está no `.gitignore`)
+2. Os índices FAISS são gerados automaticamente no deploy do HF Spaces
+3. Configure `GOOGLE_API_KEY` para usar o Gemini
+4. PDFs já estão incluídos e versionados via Git LFS
+5. Consulte o `README.md` para mais informações
 
-Consulte o README.md para documentação completa:
-cat README.md
+---
 
-Boa sorte com o Aiye! 🕯️✨
-"""
+## ERROS COMUNS
+
+❌ **"Backend não está disponível"**  
+→ Certifique-se que uvicorn está rodando em http://localhost:8000
+
+❌ **"ModuleNotFoundError: No module named 'fastapi'"**  
+→ Verifique se `.venv` está ativado e execute `pip install -r backend/requirements.txt`
+
+❌ **"npm: command not found"**  
+→ Instale Node.js em https://nodejs.org/
+
+❌ **"Nenhum arquivo PDF encontrado"**  
+→ Os PDFs já estão em `backend/data/pdfs/`. Execute `python backend/ingest.py`
+
+❌ **"GOOGLE_API_KEY not configured"**  
+→ Crie arquivo `.env` com `GOOGLE_API_KEY=sua_chave_aqui`
+
+❌ **Build falha no HF Spaces**  
+→ Verifique logs em https://huggingface.co/spaces/dev-mateus/backend-aiye/logs
+
+---
+
+## PRÓXIMOS PASSOS
+
+1. ✅ Explore a aplicação em produção
+2. 📚 Adicione novos PDFs em `backend/data/pdfs/`
+3. 🔨 Execute `python backend/ingest.py` para atualizar índice
+4. 🚀 Faça `git push space main` para deploy
+5. 💡 Veja melhorias possíveis em `PROJECT_SUMMARY.md`
+
+---
+
+## SUPORTE
+
+Consulte a documentação completa:
+- **README.md** - Visão geral e instalação
+- **DEVELOPMENT.md** - Detalhes técnicos
+- **TESTING.md** - Testes e exemplos
+- **PROJECT_SUMMARY.md** - Sumário completo
+
+**Desenvolvido com ❤️ por [Mateus](https://github.com/dev-mateus)**
+

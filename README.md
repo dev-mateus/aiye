@@ -12,17 +12,24 @@ short_description: Plataforma RAG para perguntas sobre Umbanda
 
 # Aiye – Plataforma de Perguntas sobre Umbanda
 
-Uma plataforma **local-first** para responder perguntas sobre Umbanda utilizando **RAG (Retrieval-Augmented Generation)** com embeddings vetoriais e integração com Google Gemini.
+Plataforma **RAG (Retrieval-Augmented Generation)** para responder perguntas sobre Umbanda, Espiritismo e temas afins utilizando inteligência artificial, embeddings vetoriais e integração com Google Gemini 2.5 Flash.
 
 ## 🎯 Objetivo
 
-Criar um espaço de conhecimento colaborativo onde perguntas sobre Umbanda são respondidas com base em um acervo de PDFs. As respostas são sempre citadas com as fontes, respeitando as variações entre diferentes terreiros e tradições.
+Criar um espaço de conhecimento onde perguntas sobre Umbanda são respondidas com base em um acervo curado de PDFs. As respostas são geradas por IA e sempre citam as fontes consultadas, respeitando as variações entre diferentes terreiros e tradições.
 
 ## ⚙️ Requisitos
 
+**Desenvolvimento Local:**
 - **Python 3.11+** (backend)
 - **Node.js 18+** (frontend)
+- **Google API Key** (Gemini 2.5 Flash)
 - ~2 GB de espaço em disco (para modelos de embedding e índices FAISS)
+
+**Produção:**
+- Conta Hugging Face (backend)
+- Conta Vercel (frontend)
+- Git LFS configurado (para PDFs e índices)
 
 ## 🚀 Como Rodar
 
@@ -118,26 +125,28 @@ aiye/
 
 ## 📖 Fluxo de Uso
 
-1. **Ingerir PDFs:** Execute `python backend/ingest.py` para processar PDFs em `backend/data/pdfs/`
-2. **Fazer pergunta:** Digite no textarea do frontend
-3. **Receber resposta:** O backend busca chunks relevantes no índice FAISS, gera uma resposta coerente e lista as fontes
-4. **Consultar fontes:** Links para os PDFs originais
+1. **Ingestão de PDFs:** Execute `python backend/ingest.py` para processar PDFs em `backend/data/pdfs/` e gerar o índice FAISS
+2. **Fazer pergunta:** Digite sua pergunta no frontend (https://aiye-chat.vercel.app)
+3. **Receber resposta:** O backend busca chunks relevantes no índice FAISS, envia para o Gemini sintetizar uma resposta coerente e retorna com as fontes consultadas
+4. **Consultar fontes:** Visualize os documentos consultados (sem download de PDFs por questões de direitos autorais)
 
 ## 🧠 Como Funciona o RAG
 
-- **Embeddings:** Utilizamos `sentence-transformers/all-MiniLM-L6-v2` para gerar embeddings vetoriais (384 dimensões)
-- **Índice:** FAISS (CPU) armazena os embeddings localmente
-- **Busca:** Busca coseno-similarity entre a pergunta e os chunks do acervo
-- **Resposta:** Placeholder que gera uma resposta a partir dos contextos recuperados (sem LLM externo)
-- **Metadados:** JSON com informações sobre documentos e chunks
+- **Embeddings:** `sentence-transformers/all-MiniLM-L6-v2` gera vetores de 384 dimensões para cada chunk de texto
+- **Índice:** FAISS (IndexFlatIP) armazena os embeddings para busca eficiente por similaridade
+- **Chunking:** PDFs divididos em chunks de 1500 caracteres com overlap de 200 para manter contexto
+- **Busca:** Similaridade de cosseno entre a pergunta embedada e os chunks do acervo (top-8, threshold 0.30)
+- **Geração:** Google Gemini 2.5 Flash sintetiza a resposta final baseada nos contextos recuperados
+- **Metadados:** JSON com informações sobre documentos, chunks, páginas e scores de relevância
 
 ## 🤖 Integração com Google Gemini
 
-O projeto usa **Google Gemini 2.5 Flash** para gerar respostas inteligentes baseadas nos contextos recuperados:
+O projeto usa **Google Gemini 2.5 Flash** para gerar respostas inteligentes:
 
-- Configure `GOOGLE_API_KEY` no arquivo `.env` ou nas variáveis de ambiente do deploy
-- O modelo sintetiza informações dos PDFs em respostas coerentes e bem estruturadas
-- Respostas incluem citações das fontes e avisos sobre variações regionais da Umbanda
+- Configure `GOOGLE_API_KEY` no arquivo `.env` (desenvolvimento) ou nas variáveis de ambiente do HF Spaces (produção)
+- O modelo sintetiza informações dos PDFs em respostas coerentes, estruturadas e em português claro
+- Respostas não incluem citações (adicionadas automaticamente pelo sistema)
+- Prompt instrui o modelo a respeitar variações regionais e indicar quando não encontra informação relevante
 
 ## ⚠️ Aviso Ético
 
@@ -149,64 +158,89 @@ O projeto usa **Google Gemini 2.5 Flash** para gerar respostas inteligentes base
 ## 🚀 Deploy em Produção
 
 ### Backend (Hugging Face Spaces)
-- **URL:** https://dev-mateus-backend-aiye.hf.space
-- Deploy automático via Git push para branch `main`
-- Usa **Docker SDK** com porta 7860
-- PDFs e índices FAISS armazenados via **Git LFS**
-- Configurar `GOOGLE_API_KEY` nas Repository secrets do Space
+- **URL Produção:** https://dev-mateus-backend-aiye.hf.space
+- **Tecnologia:** Docker (Python 3.11-slim) com FastAPI + Uvicorn
+- **Deploy:** Automático via `git push space main`
+- **Armazenamento:** PDFs e índice FAISS via **Git LFS** (metadata.json ~22MB, index.faiss ~133KB)
+- **Build:** Dockerfile executa `backend/init_index.py` para gerar índice se não existir
+- **Secrets:** `GOOGLE_API_KEY` configurada em Repository secrets
 
-**Para fazer deploy:**
+**Comandos de deploy:**
 ```bash
-git push space main
+git add .
+git commit -m "mensagem"
+git push origin main   # GitHub
+git push space main    # Hugging Face Spaces (trigger rebuild)
 ```
 
 Ver guia completo em [`DEPLOY_HUGGINGFACE.md`](./DEPLOY_HUGGINGFACE.md)
 
 ### Frontend (Vercel)
-- **URL:** https://aiye.vercel.app
-- Deploy automático via GitHub (branch `main`)
-- Configurar `VITE_API_BASE=https://dev-mateus-backend-aiye.hf.space`
-- Build automático com Vite a cada push
+- **URL Produção:** https://aiye-chat.vercel.app
+- **Tecnologia:** React 18 + TypeScript + Vite 5 + Tailwind CSS 3
+- **Deploy:** Automático via GitHub (branch `main`)
+- **Variável de Ambiente:** `VITE_API_BASE=https://dev-mateus-backend-aiye.hf.space`
+- **Build:** Vite build com TypeScript check a cada push
 
 ### Arquitetura de Deploy
 ```
-┌─────────────┐      HTTPS/JSON      ┌──────────────────┐
-│   Vercel    │ ───────────────────> │ Hugging Face     │
-│  (Frontend) │                      │ Spaces (Backend) │
-│  React+Vite │ <─────────────────── │  FastAPI+Docker  │
-└─────────────┘                      └──────────────────┘
-                                              │
-                                              ├─ FAISS Index (LFS)
-                                              ├─ PDFs (LFS)
-                                              └─ Gemini API
+┌─────────────────┐      HTTPS/JSON      ┌────────────────────┐
+│     Vercel      │ ──────────────────> │  Hugging Face      │
+│   (Frontend)    │                      │  Spaces (Backend)  │
+│ React+Vite+TS   │ <──────────────────  │  FastAPI+Docker    │
+└─────────────────┘                      └────────────────────┘
+                                                   │
+                                                   ├─ FAISS Index (LFS)
+                                                   ├─ PDFs (LFS)  
+                                                   ├─ Sentence Transformers
+                                                   └─ Gemini API (Google)
 ```
 
 ## 📦 Dependências
 
 ### Backend
-- FastAPI, Uvicorn
-- FAISS (busca vetorial)
-- Sentence Transformers (embeddings)
-- PyMuPDF (parsing de PDFs)
-- Pydantic (validação)
+- **FastAPI 0.115.0** - Framework web moderno e rápido
+- **Uvicorn 0.30.0** - Servidor ASGI de alta performance
+- **FAISS 1.13.0** - Busca vetorial eficiente (CPU)
+- **Sentence Transformers 3.0.1** - Geração de embeddings
+- **PyMuPDF 1.24.9** - Parsing e extração de texto de PDFs
+- **Google Generative AI ≥0.4.0** - Cliente oficial do Gemini
+- **Pydantic 2.x** - Validação de dados
 
 ### Frontend
-- React, React DOM
-- Vite (bundler)
-- TypeScript
-- Tailwind CSS
-- TanStack Query (gerenciamento de estado)
+- **React 18.2** - Biblioteca UI declarativa
+- **TypeScript 5.0** - Type safety
+- **Vite 5.0** - Build tool ultrarrápido
+- **Tailwind CSS 3.3** - Framework CSS utility-first
+- **Axios** - Cliente HTTP
 
 ## 🤝 Contribuindo
 
-1. Ingira novos PDFs em `backend/data/pdfs/`
-2. Execute `python backend/ingest.py` para atualizar o índice
-3. Envie feedback e melhore a plataforma
+Este é um projeto educacional e informativo. Para contribuir:
+
+1. Faça fork do repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -m 'Add: nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+**Sugestões de contribuição:**
+- Adicionar novos PDFs ao acervo (com direitos autorais respeitados)
+- Melhorar o prompt do Gemini para respostas mais precisas
+- Implementar feature de visualização de trechos dos PDFs (similar ao Google Books)
+- Adicionar suporte a outros idiomas
+- Melhorar o design do frontend
 
 ## 📄 Licença
 
-MIT (ou conforme você preferir)
+MIT License - veja o arquivo LICENSE para detalhes.
+
+## 👨‍💻 Autor
+
+Desenvolvido com ❤️ por [Mateus](https://github.com/dev-mateus)
 
 ---
 
-**Status:** MVP local-first, sem Docker, sem serviços pagos.
+**Status:** ✅ Em produção  
+**Versão:** 1.0.0  
+**Última atualização:** Novembro 2025

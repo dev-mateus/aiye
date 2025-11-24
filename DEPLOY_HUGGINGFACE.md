@@ -1,27 +1,32 @@
 # 🚀 Deploy no Hugging Face Spaces
 
-Este guia explica como fazer deploy do backend Aiye no Hugging Face Spaces usando Xet storage para os PDFs.
+Este guia explica como fazer deploy do backend Aiye no Hugging Face Spaces usando **Git LFS** para PDFs e índices grandes.
+
+## ✅ Status Atual
+
+**Backend em Produção:** https://dev-mateus-backend-aiye.hf.space  
+**Repositório HF:** https://huggingface.co/spaces/dev-mateus/backend-aiye
 
 ## 📋 Pré-requisitos
 
 1. Conta no Hugging Face: https://huggingface.co/join
-2. Git instalado
-3. Hugging Face CLI instalado: `pip install huggingface_hub`
-4. Git-Xet instalado para large files (recomendado)
+2. Git instalado: `git --version`
+3. Git LFS instalado: `git lfs version`
+   - Windows: https://git-lfs.github.com/
+   - Mac: `brew install git-lfs`
+   - Linux: `sudo apt install git-lfs`
+4. Python 3.11+
+5. Google API Key: https://aistudio.google.com/app/apikey
 
-## 🔧 Instalar Git-Xet
+## 🔧 Instalar Git LFS
 
 ```bash
-# Windows (via PowerShell)
-iwr https://xetdata.com/install.ps1 -useb | iex
+# Após instalar Git LFS, configure-o:
+git lfs install
 
-# macOS/Linux
-curl -L https://xetdata.com/install.sh | sh
-```
-
-Após instalar, configure:
-```bash
-git xet install
+# Verificar instalação:
+git lfs version
+# Deve mostrar: git-lfs/3.x.x
 ```
 
 ## 📦 Passo 1: Criar Space no Hugging Face

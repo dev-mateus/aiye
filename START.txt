@@ -1,52 +1,79 @@
 ╔════════════════════════════════════════════════════════════════════════════════╗
-║                    🕯️  UMBANDA QA - PROJETO COMPLETO  🕯️                        ║
+║                    🕯️  AIYE - PLATAFORMA RAG UMBANDA  🕯️                       ║
 ║                                                                                  ║
-║                  Plataforma de Tira-Dúvidas Baseada em PDFs                     ║
-║                     Local-First • Sem Docker • Sem Serviços Pagos               ║
+║                  Plataforma de Tira-Dúvidas Baseada em PDFs + RAG               ║
+║                     ✅ EM PRODUÇÃO • Vercel + HF Spaces • Gemini               ║
 ╚════════════════════════════════════════════════════════════════════════════════╝
 
 
-✅ CRIAÇÃO CONCLUÍDA COM SUCESSO
+✅ PROJETO EM PRODUÇÃO - v1.0.0
+
+🌐 Frontend: https://aiye-chat.vercel.app
+📡 Backend API: https://dev-mateus-backend-aiye.hf.space
+📚 Docs API: https://dev-mateus-backend-aiye.hf.space/docs
 
 
 📊 ESTATÍSTICAS DO PROJETO
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Total de Arquivos: 39
+  Total de Arquivos: 45+
   
-  ├── Backend (Python + FastAPI):
-  │   ├── 9 arquivos Python
-  │   ├── 1 arquivo de configuração
-  │   ├── 2 pastas para dados
-  │   └── 1700+ linhas de código
+  ├── Backend (Python 3.11 + FastAPI + Docker):
+  │   ├── 11 arquivos Python principais
+  │   ├── 7 PDFs versionados via Git LFS (~20MB)
+  │   ├── 11.799 vetores FAISS indexados
+  │   ├── metadata.json (22MB via Git LFS)
+  │   └── 2.000+ linhas de código
   │
-  ├── Frontend (React + TypeScript):
-  │   ├── 13 arquivos (TypeScript + Config)
-  │   ├── 6 componentes React
-  │   ├── 800+ linhas de código
-  │   └── Tailwind CSS incluído
+  ├── Frontend (React 18.2 + TypeScript 5.0):
+  │   ├── 15 arquivos (TypeScript + Config)
+  │   ├── 3 componentes React principais
+  │   ├── 1.000+ linhas de código
+  │   ├── Tailwind CSS 3.3 responsivo
+  │   └── Deploy Vercel automático
   │
   └── Documentação:
-      ├── README.md (instrções completas)
-      ├── QUICKSTART.md (guia passo-a-passo)
+      ├── README.md (visão geral completa)
+      ├── QUICKSTART.md (guia 5 minutos)
       ├── DEVELOPMENT.md (referência técnica)
       ├── TESTING.md (exemplos de teste)
-      └── PROJECT_SUMMARY.md (sumário geral)
+      ├── PROJECT_SUMMARY.md (sumário geral)
+      ├── DEPLOY_HUGGINGFACE.md (deploy HF)
+      ├── 00_LEIA_PRIMEIRO.txt (guia completo PT-BR)
+      └── START.txt (este arquivo)
 
 
-🚀 COMO COMEÇAR (5 MINUTOS)
+🚀 ACESSO RÁPIDO
 ═══════════════════════════════════════════════════════════════════════════════
 
-  1. Criar ambiente:
+  Produção (Recomendado):
+  → Frontend: https://aiye-chat.vercel.app
+  → API: https://dev-mateus-backend-aiye.hf.space
+  → Docs: https://dev-mateus-backend-aiye.hf.space/docs
+
+
+💻 DESENVOLVIMENTO LOCAL (5-10 MINUTOS)
+═══════════════════════════════════════════════════════════════════════════════
+
+  1. Clonar repositório:
+     → git clone https://github.com/dev-mateus/aiye.git
+     → cd aiye
+
+  2. Criar ambiente:
      → python -m venv .venv
      → .venv\Scripts\activate  (Windows)
      → source .venv/bin/activate  (Mac/Linux)
 
-  2. Instalar dependências:
+  3. Instalar dependências:
      → pip install -r backend/requirements.txt
      → cd frontend && npm install && cd ..
+     
+  4. Configurar API Key:
+     → copy .env.example .env  (Windows)
+     → Editar .env: GOOGLE_API_KEY=sua_chave_aqui
+     → Obter em: https://aistudio.google.com/app/apikey
 
-  3. Iniciar backend:
+  5. Iniciar backend:
      → uvicorn backend.main:app --reload --port 8000
      → Acesse: http://localhost:8000/docs
 

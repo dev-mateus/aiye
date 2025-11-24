@@ -3,7 +3,10 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 
-🎉 Plataforma de Perguntas sobre Umbanda
+🎉 Plataforma RAG de Perguntas sobre Umbanda
+
+🌐 EM PRODUÇÃO: https://aiye-chat.vercel.app
+📡 API Backend: https://dev-mateus-backend-aiye.hf.space
 
 
 📂 LOCAL DO PROJETO
@@ -15,94 +18,129 @@
 📋 O QUE FOI CRIADO
 ═══════════════════════════════════════════════════════════════════════════════
 
-  ✅ Backend completo (FastAPI + RAG)
-     • main.py - Servidor FastAPI com endpoints
-     • rag.py - Lógica RAG completa (embeddings, busca, resposta)
+  ✅ Backend completo (FastAPI + RAG) - DEPLOY HUGGING FACE SPACES
+     • app.py - Entry point para HF Spaces (porta 7860)
+     • main.py - Entry point para desenvolvimento local (porta 8000)
+     • rag.py - Lógica RAG completa (embeddings, busca, Gemini)
      • models.py - Modelos Pydantic para validação
      • settings.py - Configurações (carrega .env)
      • ingest.py - Script CLI para ingerir PDFs
+     • init_index.py - Validação de índices no deploy
+     • warmup.py - Pré-carregamento de modelos
+     • Dockerfile - Container Python 3.11-slim
      • requirements.txt - Todas as dependências Python
 
-  ✅ Frontend completo (React + TypeScript)
-     • React 18 com componentes tipados
-     • Vite como bundler ultrarrápido
-     • TypeScript para type safety
-     • Tailwind CSS para styling
+  ✅ Frontend completo (React + TypeScript) - DEPLOY VERCEL
+     • React 18.2 com componentes tipados
+     • Vite 5.0 como bundler ultrarrápido
+     • TypeScript 5.0 para type safety
+     • Tailwind CSS 3.3 para styling
      • Componentes: ChatBox, AnswerCard, SourceList
 
-  ✅ Documentação completa (5 guias)
+  ✅ Documentação completa (8 arquivos)
      • README.md - Visão geral e instruções
      • QUICKSTART.md - Guia de 5 minutos
      • DEVELOPMENT.md - Referência técnica
      • TESTING.md - Exemplos de teste
      • PROJECT_SUMMARY.md - Sumário detalhado
+     • DEPLOY_HUGGINGFACE.md - Guia de deploy HF Spaces
+     • 00_LEIA_PRIMEIRO.txt - Este arquivo
+     • START.txt - Sumário visual
 
   ✅ Arquivos de configuração
      • .env.example - Variáveis de ambiente
      • .gitignore - Git ignore configurado
+     • .gitattributes - Git LFS para PDFs e índices
      • Todas as configs (Vite, Tailwind, PostCSS, TypeScript)
+     • Dockerfile - Configuração de deploy
 
   ✅ Scripts auxiliares
      • test_api.py - Script para testar a API
+     • run_backend.py - Helper para iniciar backend
+     • build.sh - Script de build Unix
+     • deploy-hf.ps1 - Script de deploy PowerShell
 
 
-📊 ESTATÍSTICAS
+📊 ESTATÍSTICAS DE PRODUÇÃO
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Total de Arquivos: 31
+  Total de Arquivos: 45+
   
-  Backend:
-    • 9 arquivos Python
-    • 1.500+ linhas de código
-    • 100% comentado
+  Backend (Hugging Face Spaces):
+    • 11 arquivos Python principais
+    • 2.000+ linhas de código
+    • 100% comentado e documentado
     • Type hints completos
+    • Docker + Python 3.11
+    • 7 PDFs versionados via Git LFS (~20MB)
+    • 11.799 vetores no índice FAISS
+    • metadata.json (22MB) via Git LFS
   
-  Frontend:
-    • 13 arquivos (TypeScript + Config)
-    • 800+ linhas de código
-    • 100% tipado
+  Frontend (Vercel):
+    • 15 arquivos (TypeScript + Config)
+    • 1.000+ linhas de código
+    • 100% tipado com TypeScript 5.0
     • Responsivo e acessível
+    • Build automático via Vercel
+    • Deploy em ~1-2 minutos
   
   Documentação:
-    • 5 guias Markdown
-    • 2.000+ linhas de explicações
+    • 8 guias completos
+    • 3.000+ linhas de explicações
     • Exemplos de código
-    • Troubleshooting incluído
+    • Troubleshooting detalhado
+    • Guias de deploy
 
 
-🚀 PRÓXIMOS PASSOS (COPIE E COLE)
+🚀 ACESSO RÁPIDO À PRODUÇÃO
 ═══════════════════════════════════════════════════════════════════════════════
 
-  1️⃣  Criar ambiente virtual:
+  🌐 Frontend: https://aiye-chat.vercel.app
+  📡 API Backend: https://dev-mateus-backend-aiye.hf.space
+  📚 Documentação API: https://dev-mateus-backend-aiye.hf.space/docs
+
+
+💻 DESENVOLVIMENTO LOCAL (COPIE E COLE)
+═══════════════════════════════════════════════════════════════════════════════
+
+  1️⃣  Clonar repositório:
+      git clone https://github.com/dev-mateus/aiye.git
+      cd aiye
+
+  2️⃣  Criar ambiente virtual:
       python -m venv .venv
 
-  2️⃣  Ativar ambiente (Windows):
+  3️⃣  Ativar ambiente (Windows):
       .venv\Scripts\activate
 
-  3️⃣  Instalar dependências backend:
+  4️⃣  Instalar dependências backend:
       pip install -r backend/requirements.txt
 
-  4️⃣  Criar arquivo .env:
+  5️⃣  Criar arquivo .env e configurar GOOGLE_API_KEY:
       copy .env.example .env
+      # Editar .env e adicionar: GOOGLE_API_KEY=sua_chave_aqui
 
-  5️⃣  Instalar dependências frontend:
+  6️⃣  Instalar dependências frontend:
       cd frontend
       npm install
       cd ..
 
-  6️⃣  Terminal 1 - Iniciar backend:
+  7️⃣  Primeira vez ou ao adicionar novos PDFs:
+      python backend/ingest.py
+
+  8️⃣  Terminal 1 - Iniciar backend:
       uvicorn backend.main:app --reload --port 8000
       
       Acesso: http://localhost:8000
       Docs: http://localhost:8000/docs
 
-  7️⃣  Terminal 2 - Iniciar frontend:
+  9️⃣  Terminal 2 - Iniciar frontend:
       cd frontend
       npm run dev
       
       Acesso: http://localhost:5173
 
-  8️⃣  Testar no navegador:
+  🔟  Testar no navegador:
       Digite uma pergunta e pressione "Perguntar"
 
 
@@ -111,113 +149,147 @@
 
   Leia nesta ordem:
   
-  1. START.txt          ← Sumário visual (este arquivo)
-  2. README.md          ← Visão geral do projeto
-  3. QUICKSTART.md      ← Guia passo-a-passo (5 min)
-  4. TESTING.md         ← Exemplos de teste
-  5. DEVELOPMENT.md     ← Detalhes técnicos
-  6. PROJECT_SUMMARY.md ← Sumário completo
+  1. 00_LEIA_PRIMEIRO.txt   ← Guia completo (este arquivo)
+  2. START.txt              ← Sumário visual  
+  3. README.md              ← Visão geral do projeto
+  4. QUICKSTART.md          ← Guia passo-a-passo (5 min)
+  5. TESTING.md             ← Exemplos de teste
+  6. DEVELOPMENT.md         ← Detalhes técnicos
+  7. PROJECT_SUMMARY.md     ← Sumário completo
+  8. DEPLOY_HUGGINGFACE.md  ← Deploy HF Spaces
 
 
 ✨ DESTAQUES DO PROJETO
 ═══════════════════════════════════════════════════════════════════════════════
 
-  ✓ Local-First (sem nuvem/serviços externos)
-  ✓ Sem Docker (rodar direto no SO)
-  ✓ Sem LLM pago (placeholder fornecido)
-  ✓ Type-Safe (TypeScript + Python hints)
-  ✓ Bem documentado (5 guias + comentários)
-  ✓ MVP Completo (funciona do zero)
+  ✓ Em produção (Vercel + Hugging Face Spaces)
+  ✓ RAG completo com FAISS + Sentence Transformers
+  ✓ LLM Google Gemini 2.5 Flash
+  ✓ Docker para deploy (Python 3.11-slim)
+  ✓ Git LFS para PDFs e índices (22MB metadata)
+  ✓ Type-Safe (TypeScript + Python type hints)
+  ✓ Bem documentado (8 guias + comentários)
+  ✓ Deploy automático via Git push
   ✓ Pronto para produção (estrutura profissional)
   ✓ Fácil customizar (plug-and-play)
   ✓ Ético (avisos, respeito a tradições)
+  ✓ 11.799 vetores indexados de 7 PDFs
 
 
 🛠️  FUNCIONALIDADES IMPLEMENTADAS
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Backend:
-    ✓ FastAPI app com endpoints /healthz e /ask
-    ✓ RAG completo (embeddings, busca, resposta)
-    ✓ FAISS para busca vetorial local
-    ✓ SentenceTransformers para embeddings
-    ✓ PyMuPDF para parsing de PDFs
-    ✓ Chunking com overlap
-    ✓ Metadados em JSON
-    ✓ Tratamento de erros
-    ✓ CORS configurado
-    ✓ Documentação automática
+  Backend (Hugging Face Spaces - Docker):
+    ✓ FastAPI 0.115.0 com endpoints /healthz e /ask
+    ✓ RAG completo (embeddings, busca, Gemini)
+    ✓ FAISS 1.13.0 para busca vetorial (IndexFlatIP)
+    ✓ SentenceTransformers (all-MiniLM-L6-v2, 384 dim)
+    ✓ Google Gemini 2.5 Flash para geração de respostas
+    ✓ PyMuPDF 1.24.14 para parsing de PDFs
+    ✓ Chunking 1500 caracteres com 200 overlap
+    ✓ Metadados em JSON (22MB, 11.799 chunks)
+    ✓ Tratamento de erros e logging detalhado
+    ✓ CORS configurado para Vercel
+    ✓ Documentação automática (/docs)
+    ✓ Warmup de modelos no boot
+    ✓ Git LFS para PDFs e índices
 
-  Frontend:
-    ✓ Interface estilo Copilot/ChatGPT
+  Frontend (Vercel - React + TypeScript):
+    ✓ Interface estilo ChatGPT/Copilot
+    ✓ Tema verde personalizado "Aiye"
     ✓ Textarea para perguntas
-    ✓ Loading states
-    ✓ Exibição de respostas
-    ✓ Lista de fontes com links
-    ✓ Aviso ético
-    ✓ Tailwind CSS
-    ✓ Responsive design
-    ✓ Error handling
-    ✓ Health check
+    ✓ Loading states animados
+    ✓ Exibição de respostas formatadas
+    ✓ Lista de fontes (sem download por copyright)
+    ✓ Aviso ético automático
+    ✓ Tailwind CSS 3.3 responsivo
+    ✓ Error handling completo
+    ✓ Health check do backend
+    ✓ Deploy automático via Git push
 
 
 🔄 FLUXO DO SISTEMA
 ═══════════════════════════════════════════════════════════════════════════════
 
-  1. Ingestão (python backend/ingest.py):
-     PDF → Extração → Chunks → Embeddings → FAISS Index
+  1. Ingestão Local (python backend/ingest.py):
+     PDFs → Extração → Chunks (1500/200) → Embeddings → FAISS Index
+     → metadata.json com 11.799 chunks → Commit via Git LFS
 
-  2. Query (POST /ask):
-     Pergunta → Embed → Busca FAISS → Generate Answer
+  2. Deploy (git push space main):
+     GitHub → HF Spaces → Docker build → Download LFS → init_index.py valida
+     → Carrega 11.799 vetores → API pronta (porta 7860)
 
-  3. Resposta (Frontend):
-     API Call → Receber dados → Exibir com fontes
+  3. Query Produção (POST https://dev-mateus-backend-aiye.hf.space/ask):
+     Pergunta → Embed (384 dim) → Busca FAISS (top-8, threshold 0.30)
+     → Contexto relevante → Gemini 2.5 Flash → Resposta
+
+  4. Frontend (https://aiye-chat.vercel.app):
+     Input → API Call → Receber resposta + sources → Exibir com SourceList
 
 
-⚙️  CONFIGURAÇÕES PADRÃO (.env)
+⚙️  CONFIGURAÇÕES (.env)
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Backend:
+  Backend (Local):
+    GOOGLE_API_KEY = <sua-chave-google-ai-studio>
     EMBEDDING_MODEL = sentence-transformers/all-MiniLM-L6-v2
     PORT = 8000
-    TOP_K = 5                    # chunks a buscar
-    MIN_SIM = 0.25               # threshold de similaridade
+    TOP_K = 8                     # chunks a buscar
+    MIN_SIM = 0.30                # threshold de similaridade
+    
+  Backend (HF Spaces - Secrets):
+    GOOGLE_API_KEY = <configurado nos HF Secrets>
 
-  Frontend:
+  Frontend (Local):
     VITE_API_BASE = http://localhost:8000
+    
+  Frontend (Vercel - Environment Variables):
+    VITE_API_BASE = https://dev-mateus-backend-aiye.hf.space
 
 
 📁 ESTRUTURA FINAL
 ═══════════════════════════════════════════════════════════════════════════════
 
   aiye/
-  ├── README.md                    ← LEIA PRIMEIRO
-  ├── QUICKSTART.md                ← Guia rápido
-  ├── DEVELOPMENT.md               ← Técnico
-  ├── TESTING.md                   ← Exemplos
-  ├── PROJECT_SUMMARY.md           ← Sumário
-  ├── START.txt                    ← Este arquivo
-  ├── .env.example
-  ├── .gitignore
-  ├── test_api.py
+  ├── README.md                    ← Visão geral
+  ├── QUICKSTART.md                ← Guia rápido 5min
+  ├── DEVELOPMENT.md               ← Referência técnica
+  ├── TESTING.md                   ← Exemplos de teste
+  ├── PROJECT_SUMMARY.md           ← Sumário completo
+  ├── DEPLOY_HUGGINGFACE.md        ← Deploy HF Spaces
+  ├── 00_LEIA_PRIMEIRO.txt         ← Este arquivo
+  ├── START.txt                    ← Sumário visual
+  ├── .env.example                 ← Template variáveis
+  ├── .gitignore                   ← Git ignore
+  ├── .gitattributes               ← Git LFS config
+  ├── Dockerfile                   ← HF Spaces Docker
+  ├── test_api.py                  ← Teste API
+  ├── run_backend.py               ← Helper backend
+  ├── build.sh / deploy-hf.ps1     ← Scripts deploy
   │
   ├── backend/
-  │   ├── main.py                  (FastAPI app)
-  │   ├── rag.py                   (RAG logic)
+  │   ├── app.py                   (HF Spaces entry, porta 7860)
+  │   ├── main.py                  (Dev local entry, porta 8000)
+  │   ├── rag.py                   (RAG logic + Gemini)
   │   ├── models.py                (Pydantic models)
-  │   ├── settings.py              (config)
-  │   ├── ingest.py                (PDF ingest)
-  │   ├── requirements.txt
+  │   ├── settings.py              (Config + .env)
+  │   ├── ingest.py                (PDF ingest CLI)
+  │   ├── init_index.py            (Valida índices)
+  │   ├── warmup.py                (Pré-load modelos)
+  │   ├── requirements.txt         (Deps Python)
   │   ├── __init__.py
   │   └── data/
-  │       ├── pdfs/                ← Coloque PDFs aqui
-  │       └── index/               ← Índices FAISS (gerado)
+  │       ├── pdfs/                ← 7 PDFs (~20MB via LFS)
+  │       └── index/
+  │           ├── index.faiss      (133KB via LFS)
+  │           └── metadata.json    (22MB, 11.799 chunks via LFS)
   │
   └── frontend/
       ├── package.json
       ├── vite.config.ts
       ├── tsconfig.json
       ├── tailwind.config.js
+      ├── postcss.config.js
       ├── index.html
       └── src/
           ├── main.tsx
@@ -233,54 +305,73 @@
 💡 DICAS IMPORTANTES
 ═══════════════════════════════════════════════════════════════════════════════
 
-  1. Sempre ativar .venv antes de trabalhar com backend
+  1. Desenvolvimento local: sempre ativar .venv antes de trabalhar
      → .venv\Scripts\activate
 
-  2. Criar .env copiando de .env.example
+  2. Primeira vez: criar .env e configurar GOOGLE_API_KEY
      → copy .env.example .env
+     → Obter chave em: https://aistudio.google.com/app/apikey
 
-  3. Colocar PDFs em backend/data/pdfs/ ANTES de ingerir
+  3. Adicionar PDFs: colocar em backend/data/pdfs/ e executar ingest
      → python backend/ingest.py
 
-  4. Dois terminais abertos: um para backend, outro para frontend
+  4. Dois terminais para dev local: backend + frontend
      → Terminal 1: uvicorn backend.main:app --reload
      → Terminal 2: cd frontend && npm run dev
 
-  5. Documentação automática do backend
-     → http://localhost:8000/docs
+  5. Deploy para produção: push para ambos os remotes
+     → git push origin main        (GitHub)
+     → git push space main          (HF Spaces - rebuild automático)
+
+  6. Documentação automática da API
+     → Local: http://localhost:8000/docs
+     → Produção: https://dev-mateus-backend-aiye.hf.space/docs
+
+  7. Git LFS: PDFs e índices versionados automaticamente
+     → Configurado em .gitattributes
+     → Instale Git LFS: git lfs install
+
+  8. Logs do deploy HF Spaces:
+     → https://huggingface.co/spaces/dev-mateus/backend-aiye/logs
 
 
 🆘 ERROS COMUNS & SOLUÇÕES
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Problema                        Solução
-  ────────────────────────────────────────────────────
-  "Backend não disponível"        → Verificar porta 8000
-  "ModuleNotFoundError: fastapi"  → pip install -r requirements.txt
-  "npm not found"                 → Instalar Node.js
-  "CORS error"                    → Verificar VITE_API_BASE
-  "Port 8000 already in use"      → Mudar PORT em .env
-  "No PDFs found"                 → Colocar em backend/data/pdfs/
+  Problema                            Solução
+  ────────────────────────────────────────────────────────────────────────
+  "Backend não disponível"            → Verificar se backend está rodando
+  "ModuleNotFoundError: fastapi"      → pip install -r backend/requirements.txt
+  "npm not found"                     → Instalar Node.js
+  "CORS error"                        → Verificar VITE_API_BASE no .env
+  "Port 8000 already in use"          → Mudar PORT em .env ou matar processo
+  "No PDFs found"                     → Colocar PDFs em backend/data/pdfs/
+  "GOOGLE_API_KEY not configured"     → Criar .env com sua chave
+  "index.faiss not found"             → Executar python backend/ingest.py
+  "metadata.json has 0 chunks"        → Reingerir PDFs ou verificar Git LFS
+  "HF Space build failed"             → Ver logs em HF Space dashboard
+  "Vercel build error"                → Verificar VITE_API_BASE nas env vars
 
 
 📦 DEPENDÊNCIAS INCLUÍDAS
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Backend (Python):
-    • FastAPI 0.115.0          - Web framework
-    • Uvicorn 0.30.0           - ASGI server
-    • FAISS 1.8.0              - Busca vetorial
-    • SentenceTransformers 3.0 - Embeddings
-    • PyMuPDF 1.24.9           - PDF parsing
-    • Pydantic 2.9.2           - Validação
-    • Python-dotenv 1.0.1      - .env loader
+  Backend (Python 3.11):
+    • FastAPI 0.115.0            - Web framework moderno
+    • Uvicorn 0.30.0             - ASGI server performático
+    • FAISS 1.13.0               - Busca vetorial (IndexFlatIP)
+    • SentenceTransformers 3.3.1 - Embeddings (all-MiniLM-L6-v2)
+    • Google-generativeai 0.8.3  - Gemini 2.5 Flash
+    • PyMuPDF 1.24.14            - PDF parsing otimizado
+    • Pydantic 2.10.5            - Validação de dados
+    • Python-dotenv 1.0.1        - Carregamento de .env
 
-  Frontend (Node):
-    • React 18.2.0             - UI library
-    • TypeScript 5.0           - Type safety
-    • Vite 5.0.0               - Build tool
-    • Tailwind CSS 3.3         - Styling
-    • TanStack Query 5.0       - State management
+  Frontend (Node.js):
+    • React 18.2.0               - UI library declarativa
+    • TypeScript 5.0.0           - Type safety
+    • Vite 5.0.0                 - Build tool ultrarrápido
+    • Tailwind CSS 3.3.0         - Utility-first CSS
+    • TanStack Query 5.0.0       - State management async
 
 
 🎓 ESTRUTURA DE APRENDIZADO
@@ -299,43 +390,59 @@
 ⚡ PERFORMANCE
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Latência típica:
-    • Com pergunta vazia: ~50ms
-    • Com 5 chunks: ~150-300ms
-    • Primeira carga (modelos): ~5-10s
+  Latência típica (Produção):
+    • Healthcheck: ~50-100ms
+    • Query simples: ~1-3s (Gemini API)
+    • Query complexa: ~3-5s (contexto maior)
+    • Primeira carga (warmup): ~10-15s
 
-  Escalabilidade:
-    • FAISS IndexFlatIP: até ~100k chunks
+  Capacidade:
+    • FAISS IndexFlatIP: 11.799 vetores (384 dim)
+    • Busca top-8: ~10-20ms
+    • Escalável até ~100k vetores
     • Para >100k: considere IndexIVF ou HNSW
+
+  Deploy:
+    • HF Spaces rebuild: ~5-10 minutos
+    • Vercel deploy: ~1-2 minutos
+    • Git LFS download: ~2-3 minutos (22MB metadata)
 
 
 🔐 SEGURANÇA & PRIVACIDADE
 ═══════════════════════════════════════════════════════════════════════════════
 
-  ✓ Tudo roda localmente (sem envio de dados)
-  ✓ Sem serviços pagos (OpenAI, etc.)
-  ✓ Sem banco de dados (apenas JSON)
-  ✓ Sem rastreamento
-  ✓ Código aberto
+  ✓ Backend em HF Spaces (público mas API-only)
+  ✓ GOOGLE_API_KEY em secrets (não commitada)
+  ✓ CORS configurado apenas para Vercel frontend
+  ✓ Sem armazenamento de queries
+  ✓ Sem rastreamento de usuários
+  ✓ Código aberto (MIT License)
+  ✓ PDFs versionados via Git LFS
+  ✓ Sem download de PDFs (copyright protection)
 
 
-🎯 PRÓXIMAS ITERAÇÕES
+🎯 ROADMAP E MELHORIAS FUTURAS
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Curto Prazo:
-    □ Testar com PDFs reais
-    □ Ajustar TOP_K/MIN_SIM
-    □ Validar interface
+  ✅ Concluído:
+    ✓ Deploy produção Vercel + HF Spaces
+    ✓ Git LFS para PDFs e índices
+    ✓ Gemini 2.5 Flash integrado
+    ✓ 11.799 vetores indexados
+    ✓ Interface responsiva
+    ✓ Documentação completa
 
-  Médio Prazo:
-    □ Integrar com LLM (OpenAI/Copilot)
-    □ Adicionar filtros por doc
-    □ Implementar histórico
-
-  Longo Prazo:
-    □ Deploy em produção
-    □ Dashboard admin
-    □ Sistema de feedback
+  📋 Próximas Features:
+    □ Sistema de feedback de respostas
+    □ Filtros por documento/categoria
+    □ Histórico de conversas
+    □ Dashboard de analytics
+    □ API rate limiting
+    □ Cache de queries frequentes
+    □ Modo dark/light
+    □ Suporte a mais formatos (DOCX, TXT)
+    □ Indexação incremental
+    □ Testes automatizados (CI/CD)
 
 
 💬 SUPORTE E HELP
@@ -351,24 +458,33 @@
 
 ════════════════════════════════════════════════════════════════════════════════
 
-                    🎉 PROJETO PRONTO PARA DESENVOLVIMENTO! 🎉
+                    🎉 PROJETO EM PRODUÇÃO! 🎉
 
-                    Comece agora mesmo com:
+                    Acesse agora:
+                    🌐 https://aiye-chat.vercel.app
+                    📡 https://dev-mateus-backend-aiye.hf.space
                     
-                    1. python -m venv .venv
-                    2. .venv\Scripts\activate
-                    3. pip install -r backend/requirements.txt
-                    4. Abra outro terminal: cd frontend && npm install
-                    5. Terminal 1: uvicorn backend.main:app --reload
-                    6. Terminal 2: npm run dev
-                    7. Acesse http://localhost:5173
+                    Para desenvolvimento local:
+                    
+                    1. git clone https://github.com/dev-mateus/aiye.git
+                    2. cd aiye
+                    3. python -m venv .venv
+                    4. .venv\Scripts\activate
+                    5. pip install -r backend/requirements.txt
+                    6. copy .env.example .env (configure GOOGLE_API_KEY)
+                    7. Terminal 1: uvicorn backend.main:app --reload
+                    8. Terminal 2: cd frontend && npm install && npm run dev
+                    9. Acesse http://localhost:5173
 
 ════════════════════════════════════════════════════════════════════════════════
 
                 Versão: 1.0.0 (Produção)
-                Data: Novembro 2025
-                Status: ✅ Online em aiye.onrender.com
+                Status: ✅ Online
+                Frontend: Vercel
+                Backend: Hugging Face Spaces
+                Vetores: 11.799 chunks de 7 PDFs
                 
-                Desenvolvido com ❤️  para a comunidade Umbanda
+                Desenvolvido com ❤️ por Mateus
+                https://github.com/dev-mateus
 
 ════════════════════════════════════════════════════════════════════════════════
