@@ -148,21 +148,38 @@ O projeto usa **Google Gemini 2.5 Flash** para gerar respostas inteligentes base
 
 ## 🚀 Deploy em Produção
 
-### Backend (Render.com)
-- Deploy automático via GitHub
-- Configurar `GOOGLE_API_KEY` nas variáveis de ambiente
-- URL: `https://aiye.onrender.com`
+### Backend (Hugging Face Spaces)
+- **URL:** https://dev-mateus-backend-aiye.hf.space
+- Deploy automático via Git push para branch `main`
+- Usa **Docker SDK** com porta 7860
+- PDFs e índices FAISS armazenados via **Git LFS**
+- Configurar `GOOGLE_API_KEY` nas Repository secrets do Space
+
+**Para fazer deploy:**
+```bash
+git push space main
+```
+
+Ver guia completo em [`DEPLOY_HUGGINGFACE.md`](./DEPLOY_HUGGINGFACE.md)
 
 ### Frontend (Vercel)
-- Deploy automático via GitHub
-- Configurar `VITE_API_BASE=https://aiye.onrender.com` nas variáveis de ambiente
-- Build automático com cada push
+- **URL:** https://aiye.vercel.app
+- Deploy automático via GitHub (branch `main`)
+- Configurar `VITE_API_BASE=https://dev-mateus-backend-aiye.hf.space`
+- Build automático com Vite a cada push
 
-### Opção: Embeddings Remotos
-Para economizar memória no servidor (útil em planos gratuitos):
-- Configure `EMBEDDING_PROVIDER=remote` no Render
-- Usa API do Google para embeddings ao invés de carregar modelo local
-- Reduz uso de RAM de ~512MB para ~100MB
+### Arquitetura de Deploy
+```
+┌─────────────┐      HTTPS/JSON      ┌──────────────────┐
+│   Vercel    │ ───────────────────> │ Hugging Face     │
+│  (Frontend) │                      │ Spaces (Backend) │
+│  React+Vite │ <─────────────────── │  FastAPI+Docker  │
+└─────────────┘                      └──────────────────┘
+                                              │
+                                              ├─ FAISS Index (LFS)
+                                              ├─ PDFs (LFS)
+                                              └─ Gemini API
+```
 
 ## 📦 Dependências
 

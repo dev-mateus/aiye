@@ -2,8 +2,14 @@
 
 ## ✅ Status: EM PRODUÇÃO
 
-Plataforma online em https://aiye.vercel.app
-Backend em https://aiye.onrender.com
+**Frontend (Vercel):** https://aiye.vercel.app  
+**Backend (Hugging Face Spaces):** https://dev-mateus-backend-aiye.hf.space
+
+### Arquitetura de Deploy
+- **Frontend:** React + Vite na Vercel (deploy automático via GitHub)
+- **Backend:** FastAPI + Docker no Hugging Face Spaces (deploy via git push)
+- **Storage:** PDFs e índice FAISS via Git LFS no HF Spaces
+- **LLM:** Google Gemini 2.5 Flash API
 
 ---
 

@@ -122,27 +122,33 @@ FEATURES IMPLEMENTADAS
 ✓ Interface personalizada "Aiye" com tema verde
 ✓ Visualização de fontes citadas
 ✓ Sistema de metadados em JSON
-✓ Deploy em Render (backend) + Vercel (frontend)
+✓ Deploy Hugging Face Spaces (backend) + Vercel (frontend)
+✓ Git LFS para PDFs e índices FAISS
 ✓ Código tipado e comentado
 ✓ Tratamento de erros robusto
 
 DEPLOY EM PRODUÇÃO
 ==================
 
-1. Backend (Render.com):
-   - Criar Web Service conectado ao GitHub (dev-mateus/aiye)
-   - Configurar variável: GOOGLE_API_KEY=<sua-chave>
-   - Deploy automático a cada push no master
-   - URL: https://aiye.onrender.com
+🎯 Arquitetura Atual:
+   Frontend (Vercel) → Backend (Hugging Face Spaces) → Gemini API
+
+1. Backend (Hugging Face Spaces):
+   - URL: https://dev-mateus-backend-aiye.hf.space
+   - Deploy via git push para branch main
+   - Configurar secret: GOOGLE_API_KEY=<sua-chave>
+   - PDFs e FAISS index via Git LFS
+   - Dockerfile com Python 3.11
+   - Guia completo: DEPLOY_HUGGINGFACE.md
+
+   Deploy:
+   git push space main
 
 2. Frontend (Vercel):
-   - Importar projeto do GitHub
-   - Configurar variável: VITE_API_BASE=https://aiye.onrender.com
+   - URL: https://aiye.vercel.app
+   - Importar projeto do GitHub (branch main)
+   - Configurar variável: VITE_API_BASE=https://dev-mateus-backend-aiye.hf.space
    - Deploy automático a cada push
-
-3. Embeddings Remotos (Opcional - economiza RAM):
-   - Adicionar no Render: EMBEDDING_PROVIDER=remote
-   - Usa API Google para embeddings ao invés de modelo local
 
 NOTAS IMPORTANTES
 =================
