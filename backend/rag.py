@@ -265,6 +265,9 @@ def search(
     distances = distances[0]
     indices = indices[0]
     
+    print(f"🔍 Busca: '{query}' | Top-{top_k} | min_sim={min_sim}")
+    print(f"   Scores retornados: {distances.tolist()}")
+    
     # Constrói resultados
     results = []
     chunks_metadata = metadata.get("chunks", [])
@@ -277,7 +280,10 @@ def search(
         # Similarity score (FAISS IndexFlatIP retorna produto interno normalizado)
         score = float(distance)
         
+        print(f"   Chunk {idx}: score={score:.4f} (min={min_sim})")
+        
         if score < min_sim:
+            print(f"   ❌ Filtrado por score baixo")
             continue
         
         chunk_meta = chunks_metadata[idx]
@@ -293,7 +299,9 @@ def search(
             "score": score
         }
         results.append(result)
+        print(f"   ✅ Adicionado: {doc_meta.get('title', 'Unknown')[:40]}... (pág {chunk_meta['page_start']})")
     
+    print(f"   📊 Total de resultados retornados: {len(results)}")
     return results
 
 
