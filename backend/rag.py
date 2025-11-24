@@ -267,14 +267,21 @@ def search(
     
     print(f"🔍 Busca: '{query}' | Top-{top_k} | min_sim={min_sim}")
     print(f"   Scores retornados: {distances.tolist()}")
+    print(f"   Índices retornados: {indices.tolist()}")
+    print(f"   Total de chunks em metadata: {len(chunks_metadata)}")
     
     # Constrói resultados
     results = []
     chunks_metadata = metadata.get("chunks", [])
     docs_metadata = {doc["document_id"]: doc for doc in metadata.get("documents", [])}
     
-    for distance, idx in zip(distances, indices):
+    print(f"   Iniciando loop com {len(list(zip(distances, indices)))} items")
+    
+    for i, (distance, idx) in enumerate(zip(distances, indices)):
+        print(f"   Loop {i}: idx={idx}, distance={distance}")
+        
         if idx < 0 or idx >= len(chunks_metadata):
+            print(f"   ❌ Índice {idx} fora do range (total chunks: {len(chunks_metadata)})")
             continue
         
         # Similarity score (FAISS IndexFlatIP retorna produto interno normalizado)
