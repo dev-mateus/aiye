@@ -15,9 +15,9 @@ from backend import settings
 
 # Inicializa FastAPI
 app = FastAPI(
-    title="Umbanda QA API",
-    description="Plataforma de tira-dúvidas sobre Umbanda baseada em RAG local-first",
-    version="0.1.0"
+    title="Aiye API",
+    description="Plataforma de perguntas sobre Umbanda baseada em RAG com Google Gemini",
+    version="1.0.0"
 )
 
 # Configurar CORS (simplificado para evitar problemas)
