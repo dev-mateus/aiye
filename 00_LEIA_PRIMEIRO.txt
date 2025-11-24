@@ -1,15 +1,15 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                  ✅ PROJETO UMBANDA QA - CRIAÇÃO COMPLETA ✅                 ║
+║                     ✅ PROJETO AIYE - GUIA COMPLETO ✅                       ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 
-🎉 SUCESSO! Todos os arquivos foram criados com sucesso!
+🎉 Plataforma de Perguntas sobre Umbanda
 
 
 📂 LOCAL DO PROJETO
 ═══════════════════════════════════════════════════════════════════════════════
 
-  📁 c:\Users\mateus\Documents\Projetos\aiye\umbanda-qa\
+  📁 c:\Users\mateus\Documents\Projetos\aiye\
 
 
 📋 O QUE FOI CRIADO
@@ -190,7 +190,7 @@
 📁 ESTRUTURA FINAL
 ═══════════════════════════════════════════════════════════════════════════════
 
-  umbanda-qa/
+  aiye/
   ├── README.md                    ← LEIA PRIMEIRO
   ├── QUICKSTART.md                ← Guia rápido
   ├── DEVELOPMENT.md               ← Técnico
@@ -365,9 +365,9 @@
 
 ════════════════════════════════════════════════════════════════════════════════
 
-                Versão: 0.1.0 (MVP Local-First)
+                Versão: 1.0.0 (Produção)
                 Data: Novembro 2025
-                Status: ✅ Pronto para Uso
+                Status: ✅ Online em aiye.onrender.com
                 
                 Desenvolvido com ❤️  para a comunidade Umbanda
 

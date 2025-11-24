@@ -1,8 +1,9 @@
-# PROJETO UMBANDA QA - SUMÁRIO DE CRIAÇÃO
+# PROJETO AIYE - SUMÁRIO TÉCNICO
 
-## ✅ Status: COMPLETO
+## ✅ Status: EM PRODUÇÃO
 
-Todos os arquivos foram criados com sucesso! O monorepo `umbanda-qa` está pronto para uso.
+Plataforma online em https://aiye.vercel.app
+Backend em https://aiye.onrender.com
 
 ---
 
@@ -89,7 +90,7 @@ Todos os arquivos foram criados com sucesso! O monorepo `umbanda-qa` está pront
 
 ### 1. Configurar Backend
 ```bash
-cd umbanda-qa
+cd aiye
 cp .env.example .env
 python -m venv .venv
 .venv\Scripts\activate

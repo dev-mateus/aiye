@@ -1,6 +1,6 @@
-# Umbanda QA – Plataforma de Tira-Dúvidas Baseada em PDFs
+# Aiye – Plataforma de Perguntas sobre Umbanda
 
-Uma plataforma **local-first**, sem dependências externas de LLM ou banco de dados, para responder perguntas sobre Umbanda utilizando **RAG (Retrieval-Augmented Generation)** com embeddings vetoriais locais.
+Uma plataforma **local-first** para responder perguntas sobre Umbanda utilizando **RAG (Retrieval-Augmented Generation)** com embeddings vetoriais e integração com Google Gemini.
 
 ## 🎯 Objetivo
 
@@ -72,7 +72,7 @@ Criar um espaço de conhecimento colaborativo onde perguntas sobre Umbanda são 
 ## 📋 Estrutura de Pastas
 
 ```
-umbanda-qa/
+aiye/
 ├── backend/
 │   ├── main.py              # FastAPI app
 │   ├── ingest.py            # Script de ingestão de PDFs
@@ -119,19 +119,13 @@ umbanda-qa/
 - **Resposta:** Placeholder que gera uma resposta a partir dos contextos recuperados (sem LLM externo)
 - **Metadados:** JSON com informações sobre documentos e chunks
 
-## 🔧 Integração com LLM Futuro
+## 🤖 Integração com Google Gemini
 
-O arquivo `backend/rag.py` contém a função `generate_answer()`, que atualmente é um placeholder. Para integrar com um LLM externo (Copilot, M365, OpenAI, etc.), basta substituir a implementação interna e adicionar a chamada à API:
+O projeto usa **Google Gemini 2.5 Flash** para gerar respostas inteligentes baseadas nos contextos recuperados:
 
-```python
-def generate_answer(question: str, contexts: list[dict]) -> str:
-    # TODO: Integrar com Copilot/M365 ou outra API de LLM
-    # prompt = f"Responda baseado nos contextos abaixo:\n\n{contextos}\n\nPergunta: {question}"
-    # return call_to_llm_api(prompt)
-    
-    # Por enquanto: gera resposta a partir dos contextos
-    ...
-```
+- Configure `GOOGLE_API_KEY` no arquivo `.env` ou nas variáveis de ambiente do deploy
+- O modelo sintetiza informações dos PDFs em respostas coerentes e bem estruturadas
+- Respostas incluem citações das fontes e avisos sobre variações regionais da Umbanda
 
 ## ⚠️ Aviso Ético
 
@@ -140,11 +134,23 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
 - Sempre cite as fontes e recomende consultar um dirigente para questões específicas
 - O conteúdo ingerido deve ser confiável e autorizado
 
-## 🔐 Dados Locais
+## 🚀 Deploy em Produção
 
-- Nenhum dado é enviado para serviços externos
-- Tudo roda localmente: embeddings, busca, índices
-- Os PDFs e índices ficam em `backend/data/`
+### Backend (Render.com)
+- Deploy automático via GitHub
+- Configurar `GOOGLE_API_KEY` nas variáveis de ambiente
+- URL: `https://aiye.onrender.com`
+
+### Frontend (Vercel)
+- Deploy automático via GitHub
+- Configurar `VITE_API_BASE=https://aiye.onrender.com` nas variáveis de ambiente
+- Build automático com cada push
+
+### Opção: Embeddings Remotos
+Para economizar memória no servidor (útil em planos gratuitos):
+- Configure `EMBEDDING_PROVIDER=remote` no Render
+- Usa API do Google para embeddings ao invés de carregar modelo local
+- Reduz uso de RAM de ~512MB para ~100MB
 
 ## 📦 Dependências
 

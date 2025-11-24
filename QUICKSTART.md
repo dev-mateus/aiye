@@ -1,7 +1,7 @@
 """
-UMBANDA QA - GUIA DE INÍCIO RÁPIDO
+AIYE - GUIA DE INÍCIO RÁPIDO
 
-✅ Todos os arquivos foram criados com sucesso!
+✅ Plataforma de perguntas sobre Umbanda
 
 Próximas etapas:
 ================
@@ -9,7 +9,7 @@ Próximas etapas:
 1. CONFIGURAR O AMBIENTE DO BACKEND
 
    a) Navegar para a pasta raiz do projeto:
-      cd umbanda-qa
+      cd aiye
 
    b) Criar arquivo .env (copiar de .env.example):
       cp .env.example .env
@@ -82,7 +82,7 @@ Próximas etapas:
 ESTRUTURA DO PROJETO
 ====================
 
-umbanda-qa/
+aiye/
 ├── backend/                     # API FastAPI
 │   ├── main.py                 # Servidor FastAPI
 │   ├── rag.py                  # Lógica de RAG
@@ -112,29 +112,46 @@ umbanda-qa/
 FEATURES IMPLEMENTADAS
 ======================
 
-✓ Backend FastAPI com endpoints /healthz e /ask
+✓ Backend FastAPI com endpoints /healthz, /warmup e /ask
 ✓ RAG com FAISS (busca vetorial local)
 ✓ Embeddings HuggingFace (all-MiniLM-L6-v2)
+✓ Integração com Google Gemini 2.5 Flash para respostas
 ✓ Parsing de PDFs com PyMuPDF
-✓ Chunking com overlap
-✓ Geração de respostas a partir dos contextos
+✓ Chunking com overlap (1500 chars)
 ✓ Frontend React + TypeScript + Tailwind
-✓ Interface estilo Copilot/ChatGPT
+✓ Interface personalizada "Aiye" com tema verde
 ✓ Visualização de fontes citadas
 ✓ Sistema de metadados em JSON
-✓ Sem dependências externas (Docker, Postgres, LLM)
+✓ Deploy em Render (backend) + Vercel (frontend)
 ✓ Código tipado e comentado
-✓ Tratamento de erros básico
+✓ Tratamento de erros robusto
+
+DEPLOY EM PRODUÇÃO
+==================
+
+1. Backend (Render.com):
+   - Criar Web Service conectado ao GitHub (dev-mateus/aiye)
+   - Configurar variável: GOOGLE_API_KEY=<sua-chave>
+   - Deploy automático a cada push no master
+   - URL: https://aiye.onrender.com
+
+2. Frontend (Vercel):
+   - Importar projeto do GitHub
+   - Configurar variável: VITE_API_BASE=https://aiye.onrender.com
+   - Deploy automático a cada push
+
+3. Embeddings Remotos (Opcional - economiza RAM):
+   - Adicionar no Render: EMBEDDING_PROVIDER=remote
+   - Usa API Google para embeddings ao invés de modelo local
 
 NOTAS IMPORTANTES
 =================
 
 1. O arquivo .env não deve ser commitado (está no .gitignore)
-2. Os índices FAISS também não são commitados (backend/data/index/)
-3. PDFs de exemplo não precisam ser commitados
-4. Para integrar com um LLM externo, edite a função generate_answer() em backend/rag.py
-5. O sistema opera completamente local, sem serviços de terceiros
-6. Consulte o README.md para mais informações e documentação
+2. Os índices FAISS são gerados automaticamente no deploy
+3. Configure GOOGLE_API_KEY para usar o Gemini
+4. PDFs devem estar em backend/data/pdfs/ e commitados no repo
+5. Consulte o README.md para mais informações
 
 ERROS COMUNS
 ============
@@ -157,5 +174,5 @@ SUPORTE
 Consulte o README.md para documentação completa:
 cat README.md
 
-Boa sorte com o Umbanda QA! 🕯️✨
+Boa sorte com o Aiye! 🕯️✨
 """
