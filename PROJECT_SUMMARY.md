@@ -1,122 +1,195 @@
-# PROJETO AIYE - SUMÁRIO TÉCNICO
+# 🕯️ PROJETO AIYE - SUMÁRIO TÉCNICO
 
-# PROJETO AIYE - SUMÁRIO TÉCNICO
+> Plataforma RAG de Perguntas sobre Umbanda com IA
 
 ## ✅ Status: EM PRODUÇÃO - v1.0.0
 
-**Frontend (Vercel):** https://aiye-chat.vercel.app  
-**Backend (Hugging Face Spaces):** https://dev-mateus-backend-aiye.hf.space  
-**Repositório GitHub:** https://github.com/dev-mateus/aiye
+| Componente | URL | Status |
+|------------|-----|--------|
+| 🌐 **Frontend** | https://aiye-chat.vercel.app | ✅ Online |
+| 📡 **Backend API** | https://dev-mateus-backend-aiye.hf.space | ✅ Online |
+| 📚 **Docs API** | https://dev-mateus-backend-aiye.hf.space/docs | ✅ Online |
+| 💾 **Repositório** | https://github.com/dev-mateus/aiye | 🔓 Público |
 
-### Arquitetura de Deploy
-- **Frontend:** React 18.2 + Vite 5.0 + TypeScript 5.0 na Vercel (deploy automático via GitHub)
-- **Backend:** FastAPI 0.115.0 + Docker (Python 3.11-slim) no Hugging Face Spaces (deploy via git push)
-- **Storage:** PDFs (~20MB) e índice FAISS (133KB) + metadata.json (22MB) via Git LFS
-- **LLM:** Google Gemini 2.5 Flash API
-- **Vetores:** 11.799 chunks de 7 PDFs indexados
-- **Branch:** `main` (standardized)
+### 🏗️ Arquitetura de Deploy
+
+```mermaid
+Frontend (Vercel)          Backend (HF Spaces)          Serviços Externos
+┌─────────────────┐        ┌────────────────────┐       ┌──────────────┐
+│  React 18.2     │───────▶│  FastAPI 0.115.0   │──────▶│   Gemini     │
+│  TypeScript 5.0 │        │  Python 3.11       │       │  2.5 Flash   │
+│  Vite 5.0       │◀───────│  Docker            │       └──────────────┘
+│  Tailwind 3.3   │        │  Uvicorn 0.30.0    │
+└─────────────────┘        └────────────────────┘
+                                     │
+                           ┌─────────┴─────────┐
+                           │   Git LFS Storage │
+                           ├───────────────────┤
+                           │ • 7 PDFs (~20MB)  │
+                           │ • FAISS (133KB)   │
+                           │ • metadata (22MB) │
+                           │ • 11.799 vetores  │
+                           └───────────────────┘
+```
+
+**Stack Completo:**
+- **Frontend:** React 18.2 + Vite 5.0 + TypeScript 5.0 + Tailwind CSS 3.3 → Vercel
+- **Backend:** FastAPI 0.115.0 + Python 3.11-slim + Docker → Hugging Face Spaces
+- **Storage:** Git LFS para PDFs (7 arquivos, ~20MB) + FAISS index (133KB) + metadata.json (22MB)
+- **LLM:** Google Gemini 2.5 Flash API (google-generativeai 0.8.3)
+- **RAG:** 11.799 vetores indexados com FAISS 1.13.0 + Sentence Transformers 3.3.1
+- **Branch:** `main` (padronizada, `master` removida)
 
 ---
 
-## 📁 Arquivos Criados (45+ arquivos)
+## 📁 Estrutura do Projeto (45+ arquivos)
 
-### Raiz do Projeto
-```
-✓ README.md              - Documentação principal
-✓ QUICKSTART.md          - Guia de início rápido (5 min)
-✓ DEVELOPMENT.md         - Documentação técnica
-✓ PROJECT_SUMMARY.md     - Este arquivo (sumário completo)
-✓ TESTING.md             - Exemplos e testes
-✓ DEPLOY_HUGGINGFACE.md  - Guia de deploy HF Spaces
-✓ 00_LEIA_PRIMEIRO.txt   - Guia completo em português
-✓ START.txt              - Sumário visual
-✓ .env.example           - Variáveis de ambiente (exemplo)
-✓ .gitignore             - Git ignore configurado
-✓ .gitattributes         - Git LFS config (PDFs e índices)
-✓ Dockerfile             - Container para HF Spaces
-✓ test_api.py            - Script de teste da API
-✓ run_backend.py         - Helper para rodar backend
-✓ build.sh               - Script de build Unix
-✓ deploy-hf.ps1          - Script de deploy PowerShell
-```
+### 📄 Raiz do Projeto
 
-### Backend (11 arquivos principais)
-```
-✓ backend/__init__.py              - Package init
-✓ backend/app.py                   - Entry point HF Spaces (porta 7860)
-✓ backend/main.py                  - Entry point local (porta 8000)
-✓ backend/rag.py                   - Lógica RAG + Gemini
-✓ backend/models.py                - Modelos Pydantic
-✓ backend/settings.py              - Configurações + .env
-✓ backend/ingest.py                - Script de ingestão PDFs
-✓ backend/init_index.py            - Validação índices no deploy
-✓ backend/warmup.py                - Pré-carregamento de modelos
-✓ backend/requirements.txt         - Dependências Python
-✓ backend/data/pdfs/               - 7 PDFs (~20MB via LFS)
-✓ backend/data/index/index.faiss   - Índice FAISS (133KB via LFS)
-✓ backend/data/index/metadata.json - 11.799 chunks (22MB via LFS)
-```
+| Arquivo | Descrição | Tipo |
+|---------|-----------|------|
+| `README.md` | Documentação principal com metadados HF | 📘 Docs |
+| `QUICKSTART.md` | Guia de início rápido (5 minutos) | 🚀 Guia |
+| `DEVELOPMENT.md` | Documentação técnica detalhada | 🔧 Técnico |
+| `PROJECT_SUMMARY.md` | Este arquivo (sumário completo) | 📊 Sumário |
+| `TESTING.md` | Exemplos e casos de teste | 🧪 Testes |
+| `DEPLOY_HUGGINGFACE.md` | Guia de deploy HF Spaces | 🚢 Deploy |
+| `00_LEIA_PRIMEIRO.txt` | Guia completo em português | 📖 Guia PT-BR |
+| `START.txt` | Sumário visual ASCII art | 🎨 Visual |
+| `.env.example` | Template de variáveis de ambiente | ⚙️ Config |
+| `.gitignore` | Arquivos ignorados pelo Git | 🚫 Git |
+| `.gitattributes` | Configuração Git LFS | 📦 Git LFS |
+| `Dockerfile` | Container para HF Spaces (Python 3.11) | 🐳 Docker |
+| `test_api.py` | Script de teste da API | 🧪 Script |
+| `run_backend.py` | Helper para iniciar backend | 🔧 Helper |
+| `build.sh` | Script de build Unix/Linux | 🛠️ Build |
+| `deploy-hf.ps1` | Script de deploy PowerShell | 🚀 Deploy |
 
-### Frontend (15 arquivos)
-```
-✓ frontend/package.json             - Dependências npm
-✓ frontend/vite.config.ts          - Config Vite
-✓ frontend/tsconfig.json           - Config TypeScript
-✓ frontend/tsconfig.node.json      - Config TypeScript Node
-✓ frontend/tailwind.config.js      - Config Tailwind
-✓ frontend/postcss.config.js       - Config PostCSS
-✓ frontend/postcss.config.cjs      - Config PostCSS (CommonJS)
-✓ frontend/index.html              - HTML entry
-✓ frontend/src/main.tsx            - React entry
-✓ frontend/src/App.tsx             - Componente raiz + footer
-✓ frontend/src/api.ts              - Client HTTP
-✓ frontend/src/styles.css          - Estilos Tailwind
-✓ frontend/src/components/ChatBox.tsx       - Input de perguntas
-✓ frontend/src/components/AnswerCard.tsx    - Display de resposta
-✓ frontend/src/components/SourceList.tsx    - Lista de fontes (sem download)
-```
+### 🐍 Backend (11 arquivos principais)
+
+| Arquivo | Descrição | Linhas | Status |
+|---------|-----------|--------|--------|
+| `__init__.py` | Package initialization | ~5 | ✅ |
+| `app.py` | Entry point HF Spaces (porta 7860) | ~100 | ✅ |
+| `main.py` | Entry point local (porta 8000) | ~80 | ✅ |
+| `rag.py` | Lógica RAG + Gemini (core) | ~600 | ✅ |
+| `models.py` | Modelos Pydantic (validação) | ~50 | ✅ |
+| `settings.py` | Configurações + carregamento .env | ~40 | ✅ |
+| `ingest.py` | Script de ingestão de PDFs | ~300 | ✅ |
+| `init_index.py` | Validação de índices no deploy | ~50 | ✅ |
+| `warmup.py` | Pré-carregamento de modelos | ~30 | ✅ |
+| `requirements.txt` | 15 dependências Python | ~15 | ✅ |
+
+**Dados Armazenados (Git LFS):**
+
+| Diretório/Arquivo | Conteúdo | Tamanho | Tipo |
+|-------------------|----------|---------|------|
+| `data/pdfs/` | 7 PDFs sobre Umbanda | ~20 MB | LFS |
+| `data/index/index.faiss` | Índice FAISS (11.799 vetores) | 133 KB | LFS |
+| `data/index/metadata.json` | Metadados dos 11.799 chunks | 22 MB | LFS |
+
+### ⚛️ Frontend (15 arquivos)
+
+**Configuração:**
+
+| Arquivo | Descrição | Status |
+|---------|-----------|--------|
+| `package.json` | Dependências npm (15 pacotes) | ✅ |
+| `vite.config.ts` | Configuração Vite 5.0 | ✅ |
+| `tsconfig.json` | TypeScript config (strict mode) | ✅ |
+| `tsconfig.node.json` | TypeScript config para Node | ✅ |
+| `tailwind.config.js` | Tailwind CSS 3.3 (tema Aiye) | ✅ |
+| `postcss.config.js` | PostCSS para Tailwind | ✅ |
+| `postcss.config.cjs` | PostCSS CommonJS fallback | ✅ |
+| `index.html` | HTML entry point | ✅ |
+
+**Código Fonte:**
+
+| Arquivo | Descrição | Linhas | Status |
+|---------|-----------|--------|--------|
+| `src/main.tsx` | React entry + setup | ~15 | ✅ |
+| `src/App.tsx` | Componente raiz + footer | ~150 | ✅ |
+| `src/api.ts` | Cliente HTTP (Axios) | ~50 | ✅ |
+| `src/styles.css` | Estilos Tailwind + custom | ~30 | ✅ |
+
+**Componentes:**
+
+| Componente | Descrição | Linhas | Features |
+|------------|-----------|--------|----------|
+| `ChatBox.tsx` | Input de perguntas | ~80 | Validação, Enter to submit |
+| `AnswerCard.tsx` | Display de resposta Gemini | ~60 | Markdown, loading states |
+| `SourceList.tsx` | Lista de fontes (sem download) | ~70 | Scores, páginas, copyright |
 
 ---
 
 ## 🎯 Funcionalidades Implementadas
 
-### Backend FastAPI (Hugging Face Spaces)
-✅ Endpoint `GET /healthz` - Health check
-✅ Endpoint `POST /ask` - Pergunta com RAG + Gemini
-✅ CORS configurado para https://aiye-chat.vercel.app
-✅ Tratamento de erros completo
-✅ Documentação automática (Swagger UI em /docs)
-✅ Validação com Pydantic 2.10.5
-✅ Logging detalhado para debugging
-✅ Warmup automático de modelos no boot
-✅ Docker com Python 3.11-slim
-✅ Git LFS para assets grandes
+### 🔌 Backend FastAPI (Hugging Face Spaces)
 
-### RAG (Retrieval-Augmented Generation)
-✅ Extração de PDFs com PyMuPDF 1.24.14
-✅ Chunking com overlap (1500 chars, 200 overlap)
-✅ Embeddings HuggingFace (sentence-transformers/all-MiniLM-L6-v2, 384 dims)
-✅ Índice FAISS 1.13.0 (IndexFlatIP - cosine similarity)
-✅ Busca top-8 com threshold 0.30
-✅ Integração Google Gemini 2.5 Flash (google-generativeai 0.8.3)
-✅ Persistência em JSON (11.799 chunks, 22MB)
-✅ Sistema de fontes com páginas e scores
-✅ 7 PDFs versionados (~20MB total via LFS)
+| Endpoint | Método | Descrição | Status |
+|----------|--------|-----------|--------|
+| `/healthz` | GET | Health check da API | ✅ |
+| `/warmup` | GET | Pré-carregamento de modelos | ✅ |
+| `/ask` | POST | Pergunta com RAG + Gemini | ✅ |
+| `/docs` | GET | Documentação Swagger UI | ✅ |
 
-### Frontend React + TypeScript (Vercel)
-✅ Interface similar ChatGPT/Copilot
-✅ Textarea para perguntas
-✅ Validação (mínimo 3 caracteres)
-✅ Loading state com spinner animado
-✅ Exibição de respostas formatadas
-✅ Lista de fontes SEM download (proteção copyright)
-✅ Aviso ético automático
-✅ Tailwind CSS 3.3 para styling responsivo
-✅ Error handling com mensagens amigáveis
-✅ Health check do backend
-✅ Responsive design (mobile-first)
-✅ Keyboard shortcuts (Enter para enviar)
-✅ Footer com autor e GitHub link
+**Features Backend:**
+- ✅ CORS configurado para `https://aiye-chat.vercel.app`
+- ✅ Validação de dados com Pydantic 2.10.5
+- ✅ Logging detalhado (debug, info, error)
+- ✅ Tratamento de erros com mensagens amigáveis
+- ✅ Warmup automático de modelos no boot
+- ✅ Docker otimizado (Python 3.11-slim, multi-stage)
+- ✅ Git LFS para assets grandes (>100KB)
+
+### 🧠 RAG (Retrieval-Augmented Generation)
+
+**Pipeline Completo:**
+
+```
+PDFs → Extração → Chunking → Embeddings → FAISS Index → Busca → Gemini → Resposta
+```
+
+| Etapa | Tecnologia | Configuração | Status |
+|-------|------------|--------------|--------|
+| **Extração** | PyMuPDF 1.24.14 | 7 PDFs (~20MB) | ✅ |
+| **Chunking** | Custom | 1500 chars, overlap 200 | ✅ |
+| **Embeddings** | sentence-transformers | all-MiniLM-L6-v2 (384 dim) | ✅ |
+| **Índice** | FAISS 1.13.0 | IndexFlatIP (11.799 vetores) | ✅ |
+| **Busca** | Cosine similarity | Top-8, threshold 0.30 | ✅ |
+| **LLM** | Gemini 2.5 Flash | google-generativeai 0.8.3 | ✅ |
+| **Persistência** | JSON | metadata.json (22MB, LFS) | ✅ |
+
+**Metadados:**
+- 📄 7 documentos PDF indexados
+- 🔢 11.799 chunks de texto
+- 📊 Cada chunk: conteúdo, documento_id, páginas, score
+- 💾 Armazenamento: Git LFS (versionamento eficiente)
+
+### 🎨 Frontend React + TypeScript (Vercel)
+
+**Interface:**
+- ✅ Design moderno estilo ChatGPT/Copilot
+- ✅ Tema personalizado "Aiye" (verde/azul)
+- ✅ Responsive design mobile-first
+- ✅ Tailwind CSS 3.3 utility-first
+
+**Funcionalidades:**
+- ✅ Textarea com validação (mín. 3 caracteres)
+- ✅ Loading state com spinner animado
+- ✅ Exibição de respostas formatadas (Markdown)
+- ✅ Lista de fontes **sem download** (proteção copyright)
+- ✅ Aviso ético sobre variações regionais
+- ✅ Error handling com mensagens user-friendly
+- ✅ Health check automático do backend
+- ✅ Keyboard shortcuts (Enter para enviar)
+- ✅ Footer com autor e link GitHub
+
+**UX:**
+- ⌨️ **Enter** envia pergunta
+- 🔄 Loading states em todas as ações
+- ❌ Mensagens de erro claras
+- 📱 Otimizado para mobile e desktop
 
 ---
 
@@ -265,32 +338,47 @@ Response:
 
 ---
 
-## 📝 Roadmap
+## 📝 Roadmap & Versões
 
-### ✅ Concluído (v1.0.0)
-1. ✅ Deploy produção (Vercel + HF Spaces)
-2. ✅ Integração Gemini 2.5 Flash
-3. ✅ Git LFS para assets grandes
-4. ✅ Interface responsiva completa
-5. ✅ Documentação completa (8 arquivos)
-6. ✅ 11.799 vetores indexados de 7 PDFs
-7. ✅ Proteção copyright (sem download PDFs)
+### ✅ v1.0.0 - Concluído (Novembro 2025)
 
-### 📋 Próximas Features (v1.1.0+)
-1. □ Sistema de feedback de respostas
-2. □ Filtros por documento/categoria
-3. □ Histórico de conversas (localStorage)
-4. □ Modo dark/light theme
-5. □ API rate limiting (HF Spaces)
-6. □ Cache de queries frequentes
+| Feature | Status | Descrição |
+|---------|--------|-----------|
+| Deploy Produção | ✅ | Vercel (frontend) + HF Spaces (backend) |
+| Integração Gemini | ✅ | Google Gemini 2.5 Flash API |
+| Git LFS | ✅ | Versionamento de assets grandes (PDFs, índices) |
+| Interface Responsiva | ✅ | Mobile-first, Tailwind CSS 3.3 |
+| Documentação | ✅ | 8 arquivos completos (PT-BR + EN) |
+| Vetores Indexados | ✅ | 11.799 chunks de 7 PDFs |
+| Copyright Protection | ✅ | PDFs não downloadáveis (apenas consulta) |
+| TypeScript | ✅ | 100% tipado (frontend + backend hints) |
 
-### 🚀 Longo Prazo (v2.0.0+)
-1. □ Dashboard de analytics/admin
-2. □ Suporte a mais formatos (DOCX, TXT, EPUB)
-3. □ Indexação incremental (add PDFs sem rebuild)
-4. □ Sistema de permissões/roles
-5. □ Testes automatizados (CI/CD)
-6. □ Multilíngue (i18n)
+### 📋 v1.1.0 - Próximas Features (Planejado)
+
+| Feature | Prioridade | Complexidade | Estimativa |
+|---------|------------|--------------|------------|
+| Sistema de feedback | 🔴 Alta | Média | 2-3 dias |
+| Filtros por documento | 🟡 Média | Baixa | 1-2 dias |
+| Histórico conversas | 🟡 Média | Média | 2-3 dias |
+| Modo dark/light | 🟢 Baixa | Baixa | 1 dia |
+| API rate limiting | 🔴 Alta | Média | 2 dias |
+| Cache de queries | 🟡 Média | Alta | 3-4 dias |
+
+**Total estimado:** ~2 semanas
+
+### 🚀 v2.0.0 - Longo Prazo (2026)
+
+| Feature | Impacto | Esforço | Descrição |
+|---------|---------|---------|-----------|
+| Dashboard Analytics | 🔴 Alto | Alto | Painel admin com métricas de uso |
+| Mais Formatos | 🟡 Médio | Médio | DOCX, TXT, EPUB, Markdown |
+| Indexação Incremental | 🔴 Alto | Alto | Add PDFs sem rebuild completo |
+| Permissões/Roles | 🟢 Baixo | Alto | Sistema de autenticação |
+| Testes Automatizados | 🔴 Alto | Médio | CI/CD com GitHub Actions |
+| Multilíngue (i18n) | 🟡 Médio | Médio | EN, ES além de PT-BR |
+| Vector DB Cloud | 🟡 Médio | Alto | Pinecone/Weaviate para escalabilidade |
+
+**Total estimado:** ~3-4 meses
 
 ---
 
@@ -303,20 +391,44 @@ Response:
 
 ---
 
-## ✨ Destaques
+## ✨ Destaques do Projeto
 
-✓ **Em Produção** - v1.0.0 rodando em Vercel + HF Spaces
-✓ **Type-Safe** - TypeScript no frontend, type hints em Python
-✓ **Bem Documentado** - 8 guias + docstrings em todo código
-✓ **Estruturado** - Separação clara de responsabilidades (MVC)
-✓ **Escalável** - Fácil adicionar endpoints, componentes ou features
-✓ **RAG Completo** - 11.799 vetores de 7 PDFs indexados
-✓ **LLM Integrado** - Google Gemini 2.5 Flash API
-✓ **Deploy Automático** - Git push → build → produção
-✓ **Ético** - Avisos sobre variações entre terreiros
-✓ **User-Friendly** - Interface intuitiva estilo ChatGPT
-✓ **Git LFS** - Versionamento eficiente de assets grandes
-✓ **Copyright Protection** - PDFs não downloadáveis
+### 🏆 Principais Diferenciais
+
+| Categoria | Destaque | Detalhes |
+|-----------|----------|----------|
+| 🚀 **Produção** | Em produção v1.0.0 | Vercel (frontend) + HF Spaces (backend) |
+| 🔒 **Type-Safe** | 100% tipado | TypeScript 5.0 + Python type hints |
+| 📚 **Documentação** | Completa | 8 arquivos (3000+ linhas) |
+| 🏗️ **Arquitetura** | MVC limpo | Separação clara de responsabilidades |
+| 📈 **Escalável** | Modular | Fácil adicionar endpoints/componentes |
+| 🧠 **RAG Completo** | 11.799 vetores | 7 PDFs indexados com FAISS |
+| 🤖 **LLM** | Gemini 2.5 Flash | Respostas inteligentes em PT-BR |
+| ⚡ **Deploy** | Automático | Git push → build → produção (1-2 min) |
+| ⚖️ **Ético** | Avisos | Respeito a variações regionais |
+| 🎨 **UX** | Intuitivo | Interface estilo ChatGPT |
+| 💾 **Git LFS** | Otimizado | Versionamento eficiente (22MB) |
+| 🔐 **Copyright** | Protegido | PDFs não downloadáveis |
+
+### 🎯 Stack Tecnológico Moderno
+
+**Frontend:**
+- ⚛️ React 18.2 (Hooks, Context API)
+- 📘 TypeScript 5.0 (Strict mode)
+- ⚡ Vite 5.0 (HMR ultrarrápido)
+- 🎨 Tailwind CSS 3.3 (Utility-first)
+
+**Backend:**
+- 🚀 FastAPI 0.115.0 (Async/await)
+- 🐍 Python 3.11 (Type hints)
+- 🔍 FAISS 1.13.0 (Vector search)
+- 🤖 Gemini 2.5 Flash (LLM)
+
+**Infraestrutura:**
+- 🌐 Vercel (Edge network)
+- 🤗 Hugging Face Spaces (Docker)
+- 📦 Git LFS (Large files)
+- 🔄 GitHub (CI/CD)
 
 ---
 
