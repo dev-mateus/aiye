@@ -16,10 +16,24 @@ def init_index():
     from backend.rag import load_or_create_index
     
     index_path = Path(settings.INDEX_DIR) / "index.faiss"
+    metadata_path = Path(settings.INDEX_DIR) / "metadata.json"
     
-    if index_path.exists():
-        print("✓ Índice já existe, pulando inicialização.")
-        return
+    # Verifica se AMBOS os arquivos existem
+    if index_path.exists() and metadata_path.exists():
+        print("✓ Índice e metadata já existem, pulando inicialização.")
+        # Valida se metadata tem conteúdo
+        import json
+        try:
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+                num_chunks = len(metadata.get("chunks", []))
+                if num_chunks > 0:
+                    print(f"✓ Metadata válido com {num_chunks} chunks")
+                    return
+                else:
+                    print("⚠️ Metadata vazio, regenerando índice...")
+        except Exception as e:
+            print(f"⚠️ Erro ao ler metadata: {e}, regenerando índice...")
     
     print("🔨 Inicializando índice FAISS...")
     

@@ -40,9 +40,9 @@ frontend/.next/
 *~
 .DS_Store
 
-# FAISS Index
-backend/data/index/*
-!backend/data/index/.gitkeep
+# FAISS Index (ignorar arquivos temporários, mas não os commitados)
+# backend/data/index/*
+# !backend/data/index/.gitkeep
 
 # PDFs (optional, if you want to exclude)
 # backend/data/pdfs/*
