@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia todo o projeto
 COPY . .
 
+# Gera o índice FAISS a partir dos PDFs
+RUN python backend/init_index.py
+
 # Expõe a porta padrão do Hugging Face Spaces
 EXPOSE 7860
 
