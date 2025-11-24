@@ -130,12 +130,14 @@ export const App: React.FC = () => {
         {/* Footer */}
         <div className="mt-12 pt-8 border-t-2 border-umbanda-secondary text-center text-xs text-umbanda-accent">
           <p>
-            Desenvolvido com ❤️ • Dados locais, sem serviços externos •{" "}
+            Desenvolvido com ❤️ por{" "}
             <a
-              href="https://github.com"
+              href="https://github.com/dev-mateus"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-umbanda-primary hover:underline font-semibold"
             >
-              Open Source
+              Mateus
             </a>
           </p>
         </div>

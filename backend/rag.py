@@ -359,7 +359,7 @@ REGRAS IMPORTANTES:
 4. Sempre mencione que consultar um dirigente é importante
 5. Use português claro e acessível
 6. Crie uma única resposta coerente (não liste trechos)
-7. Cite os documentos de origem ao final
+7. NÃO cite os documentos - as fontes serão adicionadas automaticamente
 
 PERGUNTA: {question}
 
