@@ -370,19 +370,14 @@ Gere uma resposta completa, sintetizada e bem estruturada em português:"""
         # Chama Gemini
         response = model.generate_content(prompt)
         answer = response.text.strip()
+        
         # Se Gemini indicou que não encontrou, retorna a mensagem padrão
         if "NÃO_ENCONTREI" in answer.upper():
             return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
         
-        # Adiciona fontes e aviso ético
-        sources_text = "\n\n---\n\n📚 **Fontes consultadas:**\n" + "\n".join(f"• {s}" for s in sorted(sources))
-        ethical_warning = (
-            "\n\n⚠️ **Aviso importante:** "
-            "As tradições da Umbanda variam significativamente entre terreiros e regiões. "
-            "Esta resposta é informativa baseada no acervo disponível e não substitui a orientação direta de um dirigente, "
-            "mãe ou pai de santo. Sempre consulte sua comunidade espiritual para decisões práticas."
-        )
-        return answer + sources_text + ethical_warning
+        # Retorna apenas a resposta do Gemini
+        # As fontes e avisos são exibidos pelo frontend no card SourceList
+        return answer
         
     except Exception as e:
         print(f"Erro ao chamar Gemini: {e}")
