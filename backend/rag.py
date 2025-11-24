@@ -373,10 +373,11 @@ Gere uma resposta completa, sintetizada e bem estruturada em português:"""
         # Se Gemini indicou que não encontrou, retorna a mensagem padrão
         if "NÃO_ENCONTREI" in answer.upper():
             return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
-        # Adiciona rodapé com fontes e aviso ético normalmente
-        sources_text = "\n\n📚 **Fontes consultadas:**\n" + "\n".join(f"• {s}" for s in sorted(sources))
+        
+        # Adiciona fontes e aviso ético
+        sources_text = "\n\n---\n\n📚 **Fontes consultadas:**\n" + "\n".join(f"• {s}" for s in sorted(sources))
         ethical_warning = (
-            "\n\n⚠️ **Aviso importante**: "
+            "\n\n⚠️ **Aviso importante:** "
             "As tradições da Umbanda variam significativamente entre terreiros e regiões. "
             "Esta resposta é informativa baseada no acervo disponível e não substitui a orientação direta de um dirigente, "
             "mãe ou pai de santo. Sempre consulte sua comunidade espiritual para decisões práticas."
