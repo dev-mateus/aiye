@@ -39,6 +39,7 @@ export const SourceList: React.FC<SourceListProps> = ({ sources }) => {
                     Relevância: {(source.score * 100).toFixed(0)}%
                   </p>
                 )}
+              </div>
             </div>
           </div>
         ))}
