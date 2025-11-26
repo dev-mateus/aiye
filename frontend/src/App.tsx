@@ -16,6 +16,7 @@ export const App: React.FC = () => {
   const [response, setResponse] = useState<AskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
+  const [currentQuestion, setCurrentQuestion] = useState<string>(""); // Para o sistema de avaliação
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -39,6 +40,7 @@ export const App: React.FC = () => {
 
     setIsLoading(true);
     setError(null);
+    setCurrentQuestion(question); // Armazena a pergunta atual
 
     try {
       const result = await ask(question);
@@ -110,6 +112,7 @@ export const App: React.FC = () => {
             <AnswerCard
               answer={response.answer}
               latencyMs={response.meta.latency_ms}
+              question={currentQuestion}
             />
             {response.sources.length > 0 && (
               <SourceList sources={response.sources} />

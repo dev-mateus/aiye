@@ -25,3 +25,11 @@ class AskResponse(BaseModel):
     answer: str = Field(..., description="Resposta gerada a partir dos contextos")
     sources: list[Source] = Field(default_factory=list, description="Lista de fontes citadas")
     meta: dict = Field(default_factory=dict, description="Metadados adicionais (latência, top_k, etc.)")
+
+
+class FeedbackRequest(BaseModel):
+    """Requisição de feedback do usuário."""
+    question: str = Field(..., min_length=1, max_length=1000, description="Pergunta original")
+    answer: str = Field(..., min_length=1, description="Resposta recebida")
+    rating: int = Field(..., ge=1, le=5, description="Avaliação de 1 a 5 estrelas")
+    comment: Optional[str] = Field(None, max_length=500, description="Comentário opcional do usuário")
