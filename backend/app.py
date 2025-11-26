@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.models import AskRequest, AskResponse, Source, FeedbackRequest
 from backend.rag import search, generate_answer, load_embedder
 from backend import settings
+from backend.database import init_database, save_feedback, get_all_feedbacks, get_feedback_stats
 
 # Inicializa FastAPI
 app = FastAPI(
@@ -19,6 +20,16 @@ app = FastAPI(
     description="Plataforma de perguntas sobre Umbanda baseada em RAG com Google Gemini",
     version="1.0.0"
 )
+
+# Inicializa banco de dados na startup
+@app.on_event("startup")
+async def startup_event():
+    try:
+        init_database()
+        print("✓ Banco de dados inicializado")
+    except Exception as e:
+        print(f"⚠️ Erro ao inicializar banco: {e}")
+        print("Sistema continuará funcionando, mas feedbacks podem não ser salvos")
 
 # Configurar CORS (simplificado para evitar problemas)
 app.add_middleware(
@@ -135,39 +146,15 @@ async def ask_raw(request: Request) -> AskResponse:
 @app.post("/feedback", status_code=200)
 async def submit_feedback(feedback: FeedbackRequest):
     """Endpoint para receber avaliações (1-5 estrelas) das respostas."""
-    import json
-    from pathlib import Path
-    from datetime import datetime
-
     try:
-        # Caminho do arquivo de feedback
-        feedback_file = Path(__file__).parent / "data" / "feedback.json"
-        feedback_file.parent.mkdir(parents=True, exist_ok=True)
-
-        # Carregar feedbacks existentes
-        if feedback_file.exists():
-            with open(feedback_file, 'r', encoding='utf-8') as f:
-                feedbacks = json.load(f)
-        else:
-            feedbacks = []
-
-        # Adicionar novo feedback com timestamp
-        feedback_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "question": feedback.question,
-            "answer": feedback.answer,
-            "rating": feedback.rating,
-            "comment": feedback.comment
-        }
-        feedbacks.append(feedback_entry)
-
-        # Salvar no arquivo
-        with open(feedback_file, 'w', encoding='utf-8') as f:
-            json.dump(feedbacks, f, ensure_ascii=False, indent=2)
-
-        print(f"✓ Feedback recebido: {feedback.rating} estrelas")
-        return {"status": "success", "message": "Feedback salvo com sucesso"}
-
+        result = save_feedback(
+            question=feedback.question,
+            answer=feedback.answer,
+            rating=feedback.rating,
+            comment=feedback.comment
+        )
+        print(f"✓ Feedback recebido: {feedback.rating} estrelas (ID: {result.get('id')})")
+        return {"status": "success", "message": "Feedback salvo com sucesso", "id": result.get('id')}
     except Exception as e:
         print(f"✗ Erro ao salvar feedback: {e}")
         raise HTTPException(
@@ -176,31 +163,23 @@ async def submit_feedback(feedback: FeedbackRequest):
         )
 
 @app.get("/feedbacks")
-async def list_feedbacks():
+async def list_feedbacks(limit: int = 100, offset: int = 0):
     """Lista todos os feedbacks salvos (apenas para admin/debug)."""
-    import json
-    from pathlib import Path
-    
     try:
-        feedback_file = Path(__file__).parent / "data" / "feedback.json"
-        
-        if not feedback_file.exists():
-            return {"total": 0, "feedbacks": []}
-        
-        with open(feedback_file, 'r', encoding='utf-8') as f:
-            feedbacks = json.load(f)
-        
-        # Estatísticas
-        total = len(feedbacks)
-        ratings = [fb['rating'] for fb in feedbacks]
-        avg_rating = sum(ratings) / total if total > 0 else 0
+        feedbacks = get_all_feedbacks(limit=limit, offset=offset)
+        stats = get_feedback_stats()
         
         return {
-            "total": total,
-            "avg_rating": round(avg_rating, 2),
-            "feedbacks": feedbacks
+            "total": stats.get('total', 0),
+            "avg_rating": round(float(stats.get('avg_rating', 0)), 2),
+            "positive": stats.get('positive', 0),
+            "negative": stats.get('negative', 0),
+            "feedbacks": feedbacks,
+            "pagination": {
+                "limit": limit,
+                "offset": offset
+            }
         }
-    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
