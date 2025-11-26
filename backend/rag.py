@@ -6,6 +6,8 @@ Responsável por:
   - Criar e gerenciar índice FAISS
   - Buscar documentos relevantes
   - Gerar respostas a partir dos contextos recuperados
+  - Cache de respostas frequentes
+  - Re-ranking de documentos
 """
 
 import json
@@ -20,6 +22,8 @@ import faiss
 from sentence_transformers import SentenceTransformer
 import google.generativeai as genai
 from . import settings
+from .cache import get_response_cache
+from .reranker import rerank_results
 
 
 # Cache global para o embedder (evita recarregar múltiplas vezes)
@@ -235,17 +239,23 @@ def search(
     top_k: int = 8,
     min_sim: float = 0.30,
     index_dir: str = settings.INDEX_DIR,
-    embedder: Optional[SentenceTransformer] = None
+    embedder: Optional[SentenceTransformer] = None,
+    use_reranking: bool = True
 ) -> list[dict]:
     """
     Busca chunks relevantes para a query no índice FAISS.
+    Opcionalmente aplica re-ranking para melhorar relevância.
     
-    Retorna lista de dicts com:
-      - content: texto do chunk
-      - title: título do documento
-      - page_start, page_end: páginas
-      - uri: caminho do PDF
-      - score: similarity score
+    Args:
+        query: Pergunta do usuário
+        top_k: Número de resultados a retornar
+        min_sim: Similaridade mínima (0-1)
+        index_dir: Diretório do índice FAISS
+        embedder: Modelo de embedding (opcional)
+        use_reranking: Se True, aplica re-ranking aos resultados
+    
+    Returns:
+        Lista de dicts com contextos relevantes ordenados por relevância
     """
     embedder = embedder or load_embedder()
     
@@ -309,6 +319,11 @@ def search(
         print(f"   ✅ Adicionado: {doc_meta.get('title', 'Unknown')[:40]}... (pág {chunk_meta['page_start']})")
     
     print(f"   📊 Total de resultados retornados: {len(results)}")
+    
+    # Aplica re-ranking se habilitado
+    if use_reranking and results:
+        results = rerank_results(query, results)
+    
     return results
 
 
@@ -399,3 +414,54 @@ RESPOSTA COMPLETA:"""
             f"Desculpe, ocorreu um erro ao processar sua pergunta: {str(e)}. "
             "Por favor, consulte um dirigente ou tente novamente mais tarde."
         )
+
+
+def ask_with_cache(
+    question: str,
+    top_k: int = 8,
+    min_sim: float = 0.30,
+    use_cache: bool = True,
+    use_reranking: bool = True,
+    index_dir: str = None
+) -> tuple[str, list[dict]]:
+    """
+    Função principal que integra cache, busca, re-ranking e geração de resposta.
+    
+    Args:
+        question: Pergunta do usuário
+        top_k: Número de documentos a recuperar
+        min_sim: Similaridade mínima
+        use_cache: Se True, usa cache de respostas
+        use_reranking: Se True, aplica re-ranking
+        index_dir: Diretório do índice (opcional, usa settings.INDEX_DIR se None)
+    
+    Returns:
+        Tupla (resposta, contextos)
+    """
+    if index_dir is None:
+        index_dir = settings.INDEX_DIR
+    
+    cache = get_response_cache()
+    
+    # Tenta recuperar do cache
+    if use_cache:
+        cached = cache.get(question)
+        if cached:
+            return cached['answer'], cached['contexts']
+    
+    # Cache miss: busca + gera resposta
+    contexts = search(
+        query=question,
+        top_k=top_k,
+        min_sim=min_sim,
+        index_dir=index_dir,
+        use_reranking=use_reranking
+    )
+    
+    answer = generate_answer(question, contexts)
+    
+    # Armazena no cache
+    if use_cache:
+        cache.set(question, answer, contexts)
+    
+    return answer, contexts

@@ -10,7 +10,8 @@ import time
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models import AskRequest, AskResponse, Source, FeedbackRequest
-from backend.rag import search, generate_answer, load_embedder
+from backend.rag import ask_with_cache, load_embedder
+from backend.cache import get_response_cache
 from backend import settings
 from backend.database import init_database, save_feedback, get_all_feedbacks, get_feedback_stats, get_filtered_feedbacks, get_feedback_stats_by_period
 
@@ -54,17 +55,29 @@ async def warmup():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.get("/cache/stats")
+async def cache_stats():
+    """Retorna estatísticas do cache de respostas."""
+    cache = get_response_cache()
+    return cache.stats()
+
 @app.post("/ask", response_model=AskResponse)
 async def ask(request: AskRequest) -> AskResponse:
-    """Responde uma pergunta usando RAG."""
+    """Responde uma pergunta usando RAG com cache e re-ranking."""
     start_time = time.time()
     try:
         question = request.question.strip()
         if len(question) < 3:
             raise HTTPException(status_code=400, detail="A pergunta deve ter pelo menos 3 caracteres")
 
-        contexts = search(query=question, top_k=settings.TOP_K, min_sim=settings.MIN_SIM)
-        answer = generate_answer(question, contexts)
+        # Usa a função integrada com cache e re-ranking
+        answer, contexts = ask_with_cache(
+            question=question,
+            top_k=settings.TOP_K,
+            min_sim=settings.MIN_SIM,
+            use_cache=True,
+            use_reranking=True
+        )
 
         resposta_padrao = "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
         if answer.strip() == resposta_padrao:
@@ -97,7 +110,7 @@ async def ask(request: AskRequest) -> AskResponse:
 
 @app.post("/ask-raw", response_model=AskResponse)
 async def ask_raw(request: Request) -> AskResponse:
-    """Fallback endpoint que lê JSON bruto."""
+    """Fallback endpoint que lê JSON bruto com cache e re-ranking."""
     start_time = time.time()
     try:
         body = await request.json()
@@ -110,8 +123,14 @@ async def ask_raw(request: Request) -> AskResponse:
         if len(question) < 3:
             raise HTTPException(status_code=400, detail="A pergunta deve ter pelo menos 3 caracteres")
 
-        contexts = search(query=question, top_k=settings.TOP_K, min_sim=settings.MIN_SIM)
-        answer = generate_answer(question, contexts)
+        # Usa a função integrada com cache e re-ranking
+        answer, contexts = ask_with_cache(
+            question=question,
+            top_k=settings.TOP_K,
+            min_sim=settings.MIN_SIM,
+            use_cache=True,
+            use_reranking=True
+        )
 
         resposta_padrao = "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
         if answer.strip() == resposta_padrao:
