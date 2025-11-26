@@ -175,6 +175,35 @@ async def submit_feedback(feedback: FeedbackRequest):
             detail=f"Erro ao salvar feedback: {str(e)}"
         )
 
+@app.get("/feedbacks")
+async def list_feedbacks():
+    """Lista todos os feedbacks salvos (apenas para admin/debug)."""
+    import json
+    from pathlib import Path
+    
+    try:
+        feedback_file = Path(__file__).parent / "data" / "feedback.json"
+        
+        if not feedback_file.exists():
+            return {"total": 0, "feedbacks": []}
+        
+        with open(feedback_file, 'r', encoding='utf-8') as f:
+            feedbacks = json.load(f)
+        
+        # Estatísticas
+        total = len(feedbacks)
+        ratings = [fb['rating'] for fb in feedbacks]
+        avg_rating = sum(ratings) / total if total > 0 else 0
+        
+        return {
+            "total": total,
+            "avg_rating": round(avg_rating, 2),
+            "feedbacks": feedbacks
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Ajuste para Hugging Face Spaces: porta padrão 7860
 if __name__ == "__main__":
     import uvicorn
