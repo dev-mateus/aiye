@@ -60,82 +60,91 @@ function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-umbanda-light via-white to-blue-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-umbanda-primary mb-2">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-umbanda-light via-white to-blue-50">
+      {/* Header Fixo */}
+      <div className="flex-shrink-0 border-b-2 border-umbanda-secondary bg-white shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold text-umbanda-primary">
             Aiye
           </h1>
-          <p className="text-umbanda-secondary">
+          <p className="text-sm text-umbanda-secondary">
             Espaço dedicado ao estudo da Umbanda, do Espiritismo e Afins
           </p>
         </div>
+      </div>
 
-        {/* Status do Backend */}
-        {!isBackendOnline && (
-          <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
+      {/* Área de Mensagens com Scroll */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* Status do Backend */}
+          {!isBackendOnline && (
+            <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold">Backend Offline</p>
+                <p className="text-sm mt-1">
+                  Inicie o servidor: <code className="bg-red-200 px-2 py-1 rounded">
+                    uvicorn backend.main:app --reload --port 8000
+                  </code>
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold">Backend Offline</p>
-              <p className="text-sm mt-1">
-                Inicie o servidor: <code className="bg-red-200 px-2 py-1 rounded">
-                  uvicorn backend.main:app --reload --port 8000
-                </code>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded-lg">
+              <p className="font-semibold">⚠️ Erro</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!response && !error && !isLoading && (
+            <div className="text-center py-20">
+              <p className="text-umbanda-secondary text-lg">
+                Comece fazendo uma pergunta sobre Umbanda
+              </p>
+              <p className="text-umbanda-accent text-sm mt-2">
+                Use Ctrl+Enter (Cmd+Enter no Mac) para enviar rapidamente
               </p>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded-lg">
-            <p className="font-semibold">⚠️ Erro</p>
-            <p className="text-sm mt-1">{error}</p>
-          </div>
-        )}
+          {/* Response */}
+          {response && (
+            <div className="space-y-6 mb-6">
+              <AnswerCard
+                answer={response.answer}
+                latencyMs={response.meta.latency_ms}
+                question={currentQuestion}
+              />
+              {response.sources.length > 0 && (
+                <SourceList sources={response.sources} />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
-        {/* Response - Aparece ACIMA do input quando houver resposta */}
-        {response && (
-          <div className="space-y-6 mb-8">
-            <AnswerCard
-              answer={response.answer}
-              latencyMs={response.meta.latency_ms}
-              question={currentQuestion}
-            />
-            {response.sources.length > 0 && (
-              <SourceList sources={response.sources} />
-            )}
-          </div>
-        )}
-
-        {/* Chat Box - Mantém posição fixa */}
-        <div className="mb-8 bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+      {/* Input Fixo no Bottom */}
+      <div className="flex-shrink-0 border-t-2 border-umbanda-secondary bg-white shadow-lg">
+        <div className="max-w-4xl mx-auto px-4 py-4">
           <ChatBox onSubmit={handleAsk} isLoading={isLoading} />
         </div>
+      </div>
 
-        {/* Empty State - Só mostra quando não há resposta nem erro */}
-        {!response && !error && !isLoading && (
-          <div className="text-center py-12">
-            <p className="text-umbanda-secondary text-lg">
-              Comece fazendo uma pergunta sobre Umbanda
-            </p>
-            <p className="text-umbanda-accent text-sm mt-2">
-              Use Ctrl+Enter (Cmd+Enter no Mac) para enviar rapidamente
-            </p>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-12 pt-8 border-t-2 border-umbanda-secondary text-center text-xs text-umbanda-accent">
+      {/* Footer Fixo */}
+      <div className="flex-shrink-0 bg-white border-t border-umbanda-light">
+        <div className="max-w-4xl mx-auto px-4 py-2 text-center text-xs text-umbanda-accent">
           <p>
             Desenvolvido com ❤️ por{" "}
             <a
