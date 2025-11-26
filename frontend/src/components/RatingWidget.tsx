@@ -35,15 +35,21 @@ export default function RatingWidget({ question, answer, onSubmit }: RatingWidge
         }),
       });
 
+      // Aceita qualquer resposta (sucesso ou erro do backend)
+      // Mostra mensagem de agradecimento de qualquer forma
       if (response.ok) {
-        setSubmitted(true);
-        if (onSubmit) onSubmit();
+        console.log('✓ Feedback enviado com sucesso');
       } else {
-        throw new Error('Erro ao enviar feedback');
+        console.warn(`⚠️ Feedback não foi salvo (status ${response.status}), mas agradecemos sua avaliação`);
       }
+      
+      setSubmitted(true);
+      if (onSubmit) onSubmit();
     } catch (error) {
-      console.error('Erro ao enviar feedback:', error);
-      alert('Erro ao enviar feedback. Tente novamente.');
+      // Em caso de erro de rede ou timeout, ainda mostra agradecimento
+      console.warn('⚠️ Não foi possível enviar feedback, mas agradecemos sua avaliação:', error);
+      setSubmitted(true);
+      if (onSubmit) onSubmit();
     } finally {
       setSubmitting(false);
     }
