@@ -15,6 +15,15 @@ interface AnswerCardProps {
 export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, question }) => {
   return (
     <div className="animate-fade-in bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+      {/* Pergunta em negrito no topo */}
+      {question && (
+        <div className="mb-4 pb-4 border-b-2 border-umbanda-light">
+          <p className="text-lg font-bold text-umbanda-dark">
+            {question}
+          </p>
+        </div>
+      )}
+
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-umbanda-primary">Resposta</h2>
         <span className="text-xs text-umbanda-accent font-medium">

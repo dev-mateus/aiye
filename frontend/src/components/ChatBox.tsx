@@ -18,7 +18,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading }) => {
     const trimmed = question.trim();
     if (trimmed.length >= 3) {
       onSubmit(trimmed);
-      // Não limpa a pergunta - mantém no input
+      // Limpa o input após enviar
+      setQuestion("");
     }
   };
 

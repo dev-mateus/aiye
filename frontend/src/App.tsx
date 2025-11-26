@@ -95,11 +95,6 @@ function ChatPage() {
           </div>
         )}
 
-        {/* Chat Box */}
-        <div className="mb-8 bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
-          <ChatBox onSubmit={handleAsk} isLoading={isLoading} />
-        </div>
-
         {/* Error Message */}
         {error && (
           <div className="mb-6 bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded-lg">
@@ -108,9 +103,9 @@ function ChatPage() {
           </div>
         )}
 
-        {/* Response */}
+        {/* Response - Aparece ACIMA do input quando houver resposta */}
         {response && (
-          <div className="space-y-6">
+          <div className="space-y-6 mb-8">
             <AnswerCard
               answer={response.answer}
               latencyMs={response.meta.latency_ms}
@@ -122,7 +117,12 @@ function ChatPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Chat Box - Mantém posição fixa */}
+        <div className="mb-8 bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+          <ChatBox onSubmit={handleAsk} isLoading={isLoading} />
+        </div>
+
+        {/* Empty State - Só mostra quando não há resposta nem erro */}
         {!response && !error && !isLoading && (
           <div className="text-center py-12">
             <p className="text-umbanda-secondary text-lg">
