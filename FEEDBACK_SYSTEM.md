@@ -247,16 +247,19 @@ for fb in negative:
 
 ### Variáveis de Ambiente
 
-O frontend usa `VITE_BACKEND_URL` para conectar ao endpoint:
+O frontend usa `VITE_API_BASE` para conectar ao endpoint (mesma variável usada para `/ask`):
 
-**.env.local (desenvolvimento):**
+**frontend/.env (desenvolvimento local):**
 ```
-VITE_BACKEND_URL=http://localhost:8000
+VITE_API_BASE=http://localhost:8000
 ```
 
-**.env.production:**
+**Nota:** O componente RatingWidget possui fallback automático para `http://localhost:8000` caso a variável não esteja definida.
+
+**Vercel (produção):**
+Configure no dashboard do Vercel:
 ```
-VITE_BACKEND_URL=https://dev-mateus-backend-aiye.hf.space
+VITE_API_BASE=https://dev-mateus-backend-aiye.hf.space
 ```
 
 ### CORS
@@ -293,7 +296,38 @@ app.add_middleware(
 
 ## Troubleshooting
 
-### Problema: Feedback não está sendo salvo
+### Problema: Erro "Erro ao enviar feedback. Tente novamente."
+
+**Possíveis causas:**
+1. Backend não está rodando em `http://localhost:8000`
+2. Problema de CORS (frontend e backend em portas diferentes)
+3. Erro de validação nos dados (rating fora de 1-5, campos vazios)
+4. Variável de ambiente `VITE_API_BASE` incorreta
+
+**Solução:**
+```bash
+# 1. Verificar se backend está rodando
+curl http://localhost:8000/healthz
+# Deve retornar: {"status":"ok"}
+
+# 2. Verificar console do navegador (F12 > Console)
+# Procurar por erro detalhado
+
+# 3. Verificar variável de ambiente do frontend
+echo $env:VITE_API_BASE  # Windows PowerShell
+# Ou criar frontend/.env com: VITE_API_BASE=http://localhost:8000
+
+# 4. Reiniciar frontend após criar .env
+cd frontend
+npm run dev
+
+# 5. Testar endpoint diretamente
+curl.exe -X POST http://localhost:8000/feedback `
+  -H "Content-Type: application/json" `
+  -d '{\"question\":\"Teste\",\"answer\":\"Resposta\",\"rating\":5}'
+```
+
+### Problema: Rating não aparece no frontend
 
 **Possíveis causas:**
 1. Permissões de escrita no diretório `backend/data/`
