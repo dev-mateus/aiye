@@ -2,23 +2,23 @@
  * Componente principal da aplicação
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ChatBox } from "./components/ChatBox";
 import { AnswerCard } from "./components/AnswerCard";
 import { SourceList } from "./components/SourceList";
-import AdminDashboard from "./components/AdminDashboard";
+import AdminPage from "./components/AdminPage";
 import { ask, healthCheck, AskResponse } from "./api";
 import "./styles.css";
 
-export const App: React.FC = () => {
+function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<AskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState<string>(""); // Para o sistema de avaliação
-  const [showAdmin, setShowAdmin] = useState(false); // Controle do dashboard admin
+  const [currentQuestion, setCurrentQuestion] = useState<string>("");
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -42,7 +42,7 @@ export const App: React.FC = () => {
 
     setIsLoading(true);
     setError(null);
-    setCurrentQuestion(question); // Armazena a pergunta atual
+    setCurrentQuestion(question);
 
     try {
       const result = await ask(question);
@@ -59,42 +59,14 @@ export const App: React.FC = () => {
     }
   };
 
-  // Mostrar dashboard admin ou interface principal
-  if (showAdmin) {
-    return (
-      <>
-        <div className="fixed top-4 right-4 z-50">
-          <button
-            onClick={() => setShowAdmin(false)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
-          >
-            ← Voltar ao Chat
-          </button>
-        </div>
-        <AdminDashboard />
-        <Analytics />
-        <SpeedInsights />
-      </>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-umbanda-light via-white to-blue-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <h1 className="text-4xl font-bold text-umbanda-primary">
-              Aiye
-            </h1>
-            <button
-              onClick={() => setShowAdmin(true)}
-              className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              title="Abrir Dashboard Admin"
-            >
-              📊 Admin
-            </button>
-          </div>
+          <h1 className="text-4xl font-bold text-umbanda-primary mb-2">
+            Aiye
+          </h1>
           <p className="text-umbanda-secondary">
             Espaço dedicado ao estudo da Umbanda, do Espiritismo e Afins
           </p>
@@ -177,8 +149,19 @@ export const App: React.FC = () => {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+export const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<ChatPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
       <Analytics />
       <SpeedInsights />
-    </div>
+    </BrowserRouter>
   );
 };

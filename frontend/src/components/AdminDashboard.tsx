@@ -163,14 +163,14 @@ export default function AdminDashboard() {
   const totalPages = Math.ceil(totalResults / resultsPerPage);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-umbanda-light via-white to-blue-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-umbanda-primary mb-2">
             Dashboard de Feedbacks
           </h1>
-          <p className="text-gray-600">
+          <p className="text-umbanda-secondary">
             Análise detalhada das avaliações dos usuários
           </p>
         </div>
@@ -179,11 +179,11 @@ export default function AdminDashboard() {
         {stats && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Estatísticas</h2>
+              <h2 className="text-xl font-semibold text-umbanda-primary">Estatísticas</h2>
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border-2 border-umbanda-secondary rounded-lg focus:ring-2 focus:ring-umbanda-primary focus:border-umbanda-primary"
               >
                 <option value="7d">Últimos 7 dias</option>
                 <option value="30d">Últimos 30 dias</option>
@@ -193,57 +193,57 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="text-sm text-gray-600 mb-1">Total de Feedbacks</div>
-                <div className="text-3xl font-bold text-gray-900">
+              <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-umbanda-light">
+                <div className="text-sm text-umbanda-secondary mb-1">Total de Feedbacks</div>
+                <div className="text-3xl font-bold text-umbanda-primary">
                   {stats.stats.total}
                 </div>
               </div>
               
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="text-sm text-gray-600 mb-1">Média de Rating</div>
+              <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-umbanda-light">
+                <div className="text-sm text-umbanda-secondary mb-1">Média de Rating</div>
                 <div className="flex items-center gap-2">
-                  <div className="text-3xl font-bold text-gray-900">
+                  <div className="text-3xl font-bold text-umbanda-primary">
                     {stats.stats.avg_rating?.toFixed(1) || '0.0'}
                   </div>
                   <span className="text-yellow-400 text-2xl">★</span>
                 </div>
               </div>
               
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="text-sm text-gray-600 mb-1">Com Comentários</div>
-                <div className="text-3xl font-bold text-gray-900">
+              <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-umbanda-light">
+                <div className="text-sm text-umbanda-secondary mb-1">Com Comentários</div>
+                <div className="text-3xl font-bold text-umbanda-primary">
                   {stats.stats.with_comments}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-umbanda-accent mt-1">
                   {stats.stats.total > 0
                     ? `${Math.round((stats.stats.with_comments / stats.stats.total) * 100)}%`
                     : '0%'}
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow">
-                <div className="text-sm text-gray-600 mb-1">Distribuição</div>
+              <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-umbanda-light">
+                <div className="text-sm text-umbanda-secondary mb-1">Distribuição</div>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>5★:</span>
-                    <span className="font-semibold">{stats.stats.rating_5}</span>
+                    <span className="font-semibold text-umbanda-primary">{stats.stats.rating_5}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>4★:</span>
-                    <span className="font-semibold">{stats.stats.rating_4}</span>
+                    <span className="font-semibold text-umbanda-primary">{stats.stats.rating_4}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>3★:</span>
-                    <span className="font-semibold">{stats.stats.rating_3}</span>
+                    <span className="font-semibold text-umbanda-primary">{stats.stats.rating_3}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>2★:</span>
-                    <span className="font-semibold">{stats.stats.rating_2}</span>
+                    <span className="font-semibold text-umbanda-primary">{stats.stats.rating_2}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>1★:</span>
-                    <span className="font-semibold">{stats.stats.rating_1}</span>
+                    <span className="font-semibold text-umbanda-primary">{stats.stats.rating_1}</span>
                   </div>
                 </div>
               </div>
@@ -252,8 +252,8 @@ export default function AdminDashboard() {
         )}
 
         {/* Filtros */}
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filtros</h2>
+        <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-umbanda-light mb-6">
+          <h2 className="text-lg font-semibold text-umbanda-primary mb-4">Filtros</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div>
@@ -346,7 +346,7 @@ export default function AdminDashboard() {
           <div className="flex gap-3">
             <button
               onClick={handleFilter}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="px-6 py-2 bg-umbanda-primary text-white rounded-lg hover:bg-opacity-90 transition-colors font-medium"
             >
               Aplicar Filtros
             </button>
@@ -360,13 +360,13 @@ export default function AdminDashboard() {
         </div>
 
         {/* Lista de Feedbacks */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-lg border-2 border-umbanda-light">
+          <div className="p-6 border-b border-umbanda-light">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-umbanda-primary">
                 Feedbacks ({totalResults})
               </h2>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-umbanda-secondary">
                 Página {currentPage} de {totalPages || 1}
               </div>
             </div>
@@ -374,8 +374,8 @@ export default function AdminDashboard() {
 
           {loading && (
             <div className="p-12 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-4 text-gray-600">Carregando feedbacks...</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-umbanda-primary"></div>
+              <p className="mt-4 text-umbanda-secondary">Carregando feedbacks...</p>
             </div>
           )}
 
