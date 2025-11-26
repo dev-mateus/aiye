@@ -33,7 +33,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
         </span>
       </div>
 
-      <div className="answer-text text-umbanda-dark leading-relaxed prose prose-sm max-w-none">
+      <div className="answer-text text-umbanda-dark leading-relaxed prose prose-sm max-w-none prose-strong:text-umbanda-primary prose-strong:font-bold prose-ul:list-disc prose-ul:ml-5 prose-li:my-1">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
       </div>
 
