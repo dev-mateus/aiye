@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.models import AskRequest, AskResponse, Source, FeedbackRequest
 from backend.rag import search, generate_answer, load_embedder
 from backend import settings
-from backend.database import init_database, save_feedback, get_all_feedbacks, get_feedback_stats
+from backend.database import init_database, save_feedback, get_all_feedbacks, get_feedback_stats, get_filtered_feedbacks, get_feedback_stats_by_period
 
 # Inicializa FastAPI
 app = FastAPI(
@@ -181,6 +181,70 @@ async def list_feedbacks(limit: int = 100, offset: int = 0):
             }
         }
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin/feedbacks")
+async def admin_feedbacks(
+    rating: int | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    search: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+    order_by: str = "timestamp",
+    order_dir: str = "DESC"
+):
+    """
+    Endpoint admin com filtros avançados para análise de feedbacks.
+    
+    Query params:
+        - rating: Filtrar por rating específico (1-5)
+        - start_date: Data inicial (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS)
+        - end_date: Data final (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS)
+        - search: Busca por texto em pergunta ou comentário
+        - limit: Número de resultados por página (default: 50)
+        - offset: Offset para paginação (default: 0)
+        - order_by: Campo para ordenar (timestamp, rating, id, created_at)
+        - order_dir: Direção (ASC, DESC)
+    """
+    try:
+        result = get_filtered_feedbacks(
+            rating=rating,
+            start_date=start_date,
+            end_date=end_date,
+            search=search,
+            limit=limit,
+            offset=offset,
+            order_by=order_by,
+            order_dir=order_dir
+        )
+        return result
+    except Exception as e:
+        print(f"✗ Erro ao buscar feedbacks filtrados: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin/feedbacks/stats")
+async def admin_feedback_stats(period: str = "7d"):
+    """
+    Retorna estatísticas detalhadas de feedbacks por período.
+    
+    Query params:
+        - period: Período para análise (7d, 30d, 90d, all)
+    """
+    try:
+        valid_periods = ["7d", "30d", "90d", "all"]
+        if period not in valid_periods:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Período inválido. Use: {', '.join(valid_periods)}"
+            )
+        
+        stats = get_feedback_stats_by_period(period=period)
+        return stats
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"✗ Erro ao buscar estatísticas: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Ajuste para Hugging Face Spaces: porta padrão 7860

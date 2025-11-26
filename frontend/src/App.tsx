@@ -8,6 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ChatBox } from "./components/ChatBox";
 import { AnswerCard } from "./components/AnswerCard";
 import { SourceList } from "./components/SourceList";
+import AdminDashboard from "./components/AdminDashboard";
 import { ask, healthCheck, AskResponse } from "./api";
 import "./styles.css";
 
@@ -17,6 +18,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<string>(""); // Para o sistema de avaliação
+  const [showAdmin, setShowAdmin] = useState(false); // Controle do dashboard admin
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -57,14 +59,42 @@ export const App: React.FC = () => {
     }
   };
 
+  // Mostrar dashboard admin ou interface principal
+  if (showAdmin) {
+    return (
+      <>
+        <div className="fixed top-4 right-4 z-50">
+          <button
+            onClick={() => setShowAdmin(false)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+          >
+            ← Voltar ao Chat
+          </button>
+        </div>
+        <AdminDashboard />
+        <Analytics />
+        <SpeedInsights />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-umbanda-light via-white to-blue-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-umbanda-primary mb-2">
-            Aiye
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h1 className="text-4xl font-bold text-umbanda-primary">
+              Aiye
+            </h1>
+            <button
+              onClick={() => setShowAdmin(true)}
+              className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              title="Abrir Dashboard Admin"
+            >
+              📊 Admin
+            </button>
+          </div>
           <p className="text-umbanda-secondary">
             Espaço dedicado ao estudo da Umbanda, do Espiritismo e Afins
           </p>
