@@ -10,7 +10,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   // Senha simples por enquanto (pode ser melhorada com hash/backend futuramente)
-  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'aiye2024';
+  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'Aiye@2024#';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
