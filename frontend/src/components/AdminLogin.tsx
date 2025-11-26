@@ -70,7 +70,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
                   type="button"
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-2 my-auto p-2 text-gray-500 hover:text-umbanda-primary focus:outline-none focus:ring-2 focus:ring-umbanda-primary rounded"
+                  className="absolute inset-y-0 right-2 my-auto p-2 text-gray-500 hover:text-umbanda-primary border-0 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-umbanda-primary rounded"
                   disabled={isLoading}
                 >
                   {showPassword ? (
