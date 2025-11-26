@@ -9,7 +9,7 @@ Define endpoints:
 import time
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from backend.models import AskRequest, AskResponse, Source
+from backend.models import AskRequest, AskResponse, Source, FeedbackRequest
 from backend.rag import search, generate_answer, load_embedder
 from backend import settings
 
@@ -131,6 +131,49 @@ async def ask_raw(request: Request) -> AskResponse:
     except Exception as e:
         print(f"✗ Erro ao processar pergunta (raw): {e}")
         raise HTTPException(status_code=500, detail=f"Erro ao processar pergunta: {e}")
+
+@app.post("/feedback", status_code=200)
+async def submit_feedback(feedback: FeedbackRequest):
+    """Endpoint para receber avaliações (1-5 estrelas) das respostas."""
+    import json
+    from pathlib import Path
+    from datetime import datetime
+
+    try:
+        # Caminho do arquivo de feedback
+        feedback_file = Path(__file__).parent / "data" / "feedback.json"
+        feedback_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Carregar feedbacks existentes
+        if feedback_file.exists():
+            with open(feedback_file, 'r', encoding='utf-8') as f:
+                feedbacks = json.load(f)
+        else:
+            feedbacks = []
+
+        # Adicionar novo feedback com timestamp
+        feedback_entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "question": feedback.question,
+            "answer": feedback.answer,
+            "rating": feedback.rating,
+            "comment": feedback.comment
+        }
+        feedbacks.append(feedback_entry)
+
+        # Salvar no arquivo
+        with open(feedback_file, 'w', encoding='utf-8') as f:
+            json.dump(feedbacks, f, ensure_ascii=False, indent=2)
+
+        print(f"✓ Feedback recebido: {feedback.rating} estrelas")
+        return {"status": "success", "message": "Feedback salvo com sucesso"}
+
+    except Exception as e:
+        print(f"✗ Erro ao salvar feedback: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao salvar feedback: {str(e)}"
+        )
 
 # Ajuste para Hugging Face Spaces: porta padrão 7860
 if __name__ == "__main__":
