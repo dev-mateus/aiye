@@ -421,7 +421,7 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
             return "⚠️ Erro: GOOGLE_API_KEY não configurada. Por favor, defina a variável de ambiente."
         
         genai.configure(api_key=settings.GOOGLE_API_KEY)
-        model = genai.GenerativeModel("gemini-2.0-flash-exp")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         
         # Monta contexto para Gemini (combina todos os chunks com fontes)
         context_text = "CONTEXTOS RELEVANTES DO ACERVO:\n\n"

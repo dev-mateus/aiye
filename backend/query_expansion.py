@@ -93,7 +93,7 @@ def expand_query_with_llm(query: str) -> List[str]:
     
     try:
         genai.configure(api_key=settings.GOOGLE_API_KEY)
-        model = genai.GenerativeModel("gemini-2.0-flash-exp")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         
         prompt = f"""Você é um especialista em Umbanda. Dada a pergunta do usuário, gere 2 reformulações alternativas que capturem a mesma intenção mas com palavras diferentes.
 
