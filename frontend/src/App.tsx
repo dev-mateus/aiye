@@ -110,18 +110,9 @@ function ChatPage() {
             </div>
           )}
 
-          {/* Empty State + Input central quando não há resposta */}
+          {/* Input central quando não há resposta (sem textos auxiliares) */}
           {!response && (
             <div className="py-10">
-              <div className="text-center mb-6">
-                <p className="text-umbanda-secondary text-lg">
-                  Comece fazendo uma pergunta sobre Umbanda
-                </p>
-                <p className="text-umbanda-accent text-sm mt-2">
-                  Use Ctrl+Enter (Cmd+Enter no Mac) para enviar rapidamente
-                </p>
-              </div>
-
               <div className="bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
                 <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
               </div>

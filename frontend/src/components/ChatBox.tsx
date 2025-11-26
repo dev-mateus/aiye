@@ -49,7 +49,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, resetSign
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Faça sua pergunta sobre Umbanda... (mínimo 3 caracteres)"
+          placeholder="Faça sua pergunta."
           disabled={isLoading}
           rows={4}
           className="w-full px-4 py-3 border-2 border-umbanda-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-umbanda-primary focus:border-umbanda-primary disabled:bg-umbanda-light disabled:cursor-not-allowed resize-none text-umbanda-dark placeholder-umbanda-accent"
