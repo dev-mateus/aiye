@@ -8,6 +8,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Senha simples por enquanto (pode ser melhorada com hash/backend futuramente)
   const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'Aiye@2024#';
@@ -56,7 +57,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
               </label>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-umbanda-primary focus:border-umbanda-primary transition-colors"
@@ -64,6 +65,18 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
                 required
                 disabled={isLoading}
               />
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  id="showpw"
+                  type="checkbox"
+                  className="h-4 w-4 text-umbanda-primary"
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(e.target.checked)}
+                />
+                <label htmlFor="showpw" className="text-sm text-gray-600 select-none">
+                  Mostrar senha
+                </label>
+              </div>
             </div>
 
             {error && (
