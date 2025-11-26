@@ -9,3 +9,4 @@ numpy==1.26.4
 orjson==3.10.7
 google-generativeai>=0.4.0
 psycopg2-binary==2.9.9
+nltk==3.9.1

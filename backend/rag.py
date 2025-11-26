@@ -1,20 +1,50 @@
 """
-Módulo RAG (Retrieval-Augmented Generation).
+Módulo RAG (Retrieval-Augmented Generation) - VERSÃO AVANÇADA.
+
+FILOSOFIA FUNDAMENTAL DO SISTEMA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔒 REGRA DE OURO: Respostas APENAS baseadas no acervo de PDFs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. FONTES PERMITIDAS:
+   ✅ Documentos PDF indexados no FAISS
+   ✅ Contextos recuperados pela busca vetorial/híbrida
+   ❌ Conhecimento prévio do LLM (Gemini)
+   ❌ Informações externas ou de bases de conhecimento gerais
+
+2. PAPEL DO GEMINI:
+   - ÚNICO uso: Reformular linguisticamente os contextos recuperados
+   - PROIBIDO: Adicionar informações, deduzir, supor, inventar
+   - Gemini = "Tradutor de contextos para linguagem natural"
+
+3. QUANDO NÃO HÁ INFORMAÇÃO:
+   - Retornar "Não encontrei essa informação no acervo"
+   - NUNCA tentar responder com conhecimento geral
+   - NUNCA completar informações parciais
+
+4. MELHORIAS TÉCNICAS (SEMPRE RESPEITANDO REGRA DE OURO):
+   - Chunking semântico: Melhora qualidade dos contextos extraídos
+   - Hybrid Search: Melhora recall (encontra mais contextos relevantes)
+   - Query Expansion: Reformula pergunta para buscar melhor
+   - Re-ranking: Ordena contextos por relevância
+   - Prompt Engineering: Instrui Gemini a NÃO inventar
+
 Responsável por:
   - Extrair texto de PDFs
-  - Chunk de texto com overlap
+  - Chunking semântico inteligente (respeita sentenças e parágrafos)
   - Criar e gerenciar índice FAISS
-  - Buscar documentos relevantes
-  - Gerar respostas a partir dos contextos recuperados
+  - Hybrid Search (Dense FAISS + Sparse BM25)
+  - Query Expansion (sinônimos + LLM reformulation)
+  - Buscar documentos relevantes com re-ranking
+  - Gerar respostas SOMENTE a partir dos contextos recuperados
   - Cache de respostas frequentes
-  - Re-ranking de documentos
 """
 
 import json
 import os
 import uuid
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict
 
 import numpy as np
 import fitz  # PyMuPDF
@@ -24,10 +54,16 @@ import google.generativeai as genai
 from . import settings
 from .cache import get_response_cache
 from .reranker import rerank_results
+from .chunking import chunk_text_semantic, chunk_text_hybrid
+from .hybrid_search import HybridSearch, create_hybrid_searcher
+from .query_expansion import get_query_expander
 
 
 # Cache global para o embedder (evita recarregar múltiplas vezes)
 _embedder: Optional[SentenceTransformer] = None
+
+# Cache global para hybrid searcher
+_hybrid_searcher: Optional[HybridSearch] = None
 
 
 def load_embedder() -> SentenceTransformer:
@@ -186,9 +222,14 @@ def add_document_to_index(
     if not pages:
         return
     
-    # Cria chunks
-    chunks = chunk_text(pages)
-    print(f"  → {len(chunks)} chunks criados")
+    # Cria chunks usando chunking semântico avançado
+    chunks = chunk_text_semantic(
+        pages,
+        target_chunk_size=800,  # Chunks menores e mais focados
+        max_chunk_size=1200,
+        min_chunk_size=200
+    )
+    print(f"  → {len(chunks)} chunks semânticos criados")
     
     # Carrega índice e metadados
     faiss_index, metadata = load_or_create_index(index_dir)
@@ -213,13 +254,18 @@ def add_document_to_index(
         embedding = embedder.encode(chunk["content"], convert_to_numpy=True)
         embeddings_list.append(embedding)
         
-        # Salva chunk em metadados
+        # Salva chunk em metadados (com metadata enriquecido)
         chunk_metadata = {
             "document_id": doc_id,
             "chunk_id": chunk_id,
             "page_start": chunk["page_start"],
             "page_end": chunk["page_end"],
-            "content": chunk["content"]
+            "content": chunk["content"],
+            # Metadata adicional do chunking semântico
+            "section_title": chunk.get("section_title", ""),
+            "sentence_count": chunk.get("sentence_count", 0),
+            "word_count": chunk.get("word_count", 0),
+            "is_complete": chunk.get("is_complete", True)
         }
         metadata["chunks"].append(chunk_metadata)
     
@@ -240,11 +286,17 @@ def search(
     min_sim: float = 0.30,
     index_dir: str = settings.INDEX_DIR,
     embedder: Optional[SentenceTransformer] = None,
-    use_reranking: bool = True
+    use_reranking: bool = True,
+    use_hybrid: bool = True,
+    use_query_expansion: bool = True
 ) -> list[dict]:
     """
-    Busca chunks relevantes para a query no índice FAISS.
-    Opcionalmente aplica re-ranking para melhorar relevância.
+    Busca chunks relevantes com técnicas avançadas de RAG.
+    
+    Melhorias implementadas:
+    - Query Expansion: Expande query com sinônimos e LLM
+    - Hybrid Search: Combina FAISS (dense) + BM25 (sparse)
+    - Re-ranking: Multi-signal scoring para melhor relevância
     
     Args:
         query: Pergunta do usuário
@@ -252,11 +304,15 @@ def search(
         min_sim: Similaridade mínima (0-1)
         index_dir: Diretório do índice FAISS
         embedder: Modelo de embedding (opcional)
-        use_reranking: Se True, aplica re-ranking aos resultados
+        use_reranking: Se True, aplica re-ranking multi-signal
+        use_hybrid: Se True, usa hybrid search (BM25 + Dense)
+        use_query_expansion: Se True, expande query com sinônimos/LLM
     
     Returns:
         Lista de dicts com contextos relevantes ordenados por relevância
     """
+    global _hybrid_searcher
+    
     embedder = embedder or load_embedder()
     
     # Carrega índice e metadados
@@ -265,66 +321,83 @@ def search(
     if faiss_index.ntotal == 0:
         return []
     
-    # Embed a query
-    query_embedding = embedder.encode(query, convert_to_numpy=True)
-    query_embedding = np.array([query_embedding], dtype=np.float32)
-    faiss.normalize_L2(query_embedding)
-    
-    # Busca no FAISS
-    distances, indices = faiss_index.search(query_embedding, int(top_k))  # type: ignore
-    distances = distances[0]
-    indices = indices[0]
-    
-    # Constrói resultados
     chunks_metadata = metadata.get("chunks", [])
     docs_metadata = {doc["document_id"]: doc for doc in metadata.get("documents", [])}
     
-    print(f"🔍 Busca: '{query}' | Top-{top_k} | min_sim={min_sim}")
-    print(f"   Scores retornados: {distances.tolist()}")
-    print(f"   Índices retornados: {indices.tolist()}")
-    print(f"   Total de chunks em metadata: {len(chunks_metadata)}")
+    # === ETAPA 1: Query Expansion ===
+    queries_to_search = [query]
+    if use_query_expansion:
+        expander = get_query_expander()
+        queries_to_search = expander.expand(query)
+        print(f"🔄 Query Expansion: 1 query → {len(queries_to_search)} queries")
     
-    results = []
-    print(f"   Iniciando loop com {len(list(zip(distances, indices)))} items")
+    # === ETAPA 2: Dense Search (FAISS) para cada query ===
+    all_results = {}  # dict para deduplicar por content
     
-    for i, (distance, idx) in enumerate(zip(distances, indices)):
-        print(f"   Loop {i}: idx={idx}, distance={distance}")
+    for q in queries_to_search:
+        # Embed a query
+        query_embedding = embedder.encode(q, convert_to_numpy=True)
+        query_embedding = np.array([query_embedding], dtype=np.float32)
+        faiss.normalize_L2(query_embedding)
         
-        if idx < 0 or idx >= len(chunks_metadata):
-            print(f"   ❌ Índice {idx} fora do range (total chunks: {len(chunks_metadata)})")
-            continue
+        # Busca no FAISS (pega mais resultados para filtrar depois)
+        search_k = top_k * len(queries_to_search)  # Busca mais se tem expansão
+        distances, indices = faiss_index.search(query_embedding, search_k)  # type: ignore
+        distances = distances[0]
+        indices = indices[0]
         
-        # Similarity score (FAISS IndexFlatIP retorna produto interno normalizado)
-        score = float(distance)
-        
-        print(f"   Chunk {idx}: score={score:.4f} (min={min_sim})")
-        
-        if score < min_sim:
-            print(f"   ❌ Filtrado por score baixo")
-            continue
-        
-        chunk_meta = chunks_metadata[idx]
-        doc_id = chunk_meta["document_id"]
-        doc_meta = docs_metadata.get(doc_id, {})
-        
-        result = {
-            "content": chunk_meta["content"],
-            "title": doc_meta.get("title", "Unknown"),
-            "page_start": chunk_meta["page_start"],
-            "page_end": chunk_meta["page_end"],
-            "uri": doc_meta.get("source_uri", ""),
-            "score": score
-        }
-        results.append(result)
-        print(f"   ✅ Adicionado: {doc_meta.get('title', 'Unknown')[:40]}... (pág {chunk_meta['page_start']})")
+        # Processa resultados desta query
+        for distance, idx in zip(distances, indices):
+            if idx < 0 or idx >= len(chunks_metadata):
+                continue
+            
+            score = float(distance)
+            if score < min_sim:
+                continue
+            
+            chunk_meta = chunks_metadata[idx]
+            doc_id = chunk_meta["document_id"]
+            doc_meta = docs_metadata.get(doc_id, {})
+            
+            content = chunk_meta["content"]
+            
+            # Deduplica: usa content como chave, mantém melhor score
+            if content not in all_results or score > all_results[content]["score"]:
+                all_results[content] = {
+                    "content": content,
+                    "title": doc_meta.get("title", "Unknown"),
+                    "page_start": chunk_meta["page_start"],
+                    "page_end": chunk_meta["page_end"],
+                    "uri": doc_meta.get("source_uri", ""),
+                    "score": score,
+                    "matched_query": q  # Qual query expandida encontrou
+                }
     
-    print(f"   📊 Total de resultados retornados: {len(results)}")
+    results = list(all_results.values())
+    print(f"🔍 Dense Search: {len(results)} resultados únicos (min_sim={min_sim})")
     
-    # Aplica re-ranking se habilitado
+    if not results:
+        return []
+    
+    # === ETAPA 3: Hybrid Search (BM25 + Dense) ===
+    if use_hybrid:
+        # Inicializa ou reutiliza hybrid searcher
+        if _hybrid_searcher is None or len(_hybrid_searcher.corpus) != len(chunks_metadata):
+            _hybrid_searcher = create_hybrid_searcher(chunks_metadata, alpha=0.65)
+        
+        results = _hybrid_searcher.search(query, results, top_k=top_k*2)
+        print(f"🔀 Hybrid Search: {len(results)} resultados após BM25 fusion")
+    
+    # === ETAPA 4: Re-ranking Multi-Signal ===
     if use_reranking and results:
         results = rerank_results(query, results)
+        print(f"📊 Re-ranking: {len(results)} resultados re-ordenados")
     
-    return results
+    # Retorna top-k finais
+    final_results = results[:top_k]
+    print(f"✅ Retornando {len(final_results)} resultados finais")
+    
+    return final_results
 
 
 def generate_answer(question: str, contexts: list[dict]) -> str:
@@ -348,63 +421,158 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
             return "⚠️ Erro: GOOGLE_API_KEY não configurada. Por favor, defina a variável de ambiente."
         
         genai.configure(api_key=settings.GOOGLE_API_KEY)
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash-exp")
         
         # Monta contexto para Gemini (combina todos os chunks com fontes)
-        context_text = "CONTEXTOS DO ACERVO DE UMBANDA:\n\n"
+        context_text = "CONTEXTOS RELEVANTES DO ACERVO:\n\n"
         sources = set()
         
-        for ctx in contexts:
+        for i, ctx in enumerate(contexts, 1):
             title = ctx.get("title", "Desconhecido")
             page_start = ctx.get("page_start", "?")
             page_end = ctx.get("page_end", "?")
             content = ctx.get("content", "").strip()
+            score = ctx.get("final_score", ctx.get("score", 0))
             
-            context_text += f"[{title} - pp. {page_start}-{page_end}]\n{content}\n\n"
+            context_text += f"[CONTEXTO {i}] {title} (pp. {page_start}-{page_end}) | Relevância: {score:.2f}\n{content}\n\n"
             sources.add(f"{title} (pp. {page_start}-{page_end})")
         
-        # Prompt otimizado e estruturado
-        prompt = f"""Você é um especialista em Umbanda com profundo conhecimento sobre suas tradições, fundamentos e práticas.
+        # Prompt com proteção forte contra alucinações
+        prompt = f"""**REGRA FUNDAMENTAL**: Você DEVE responder APENAS com informações que estão EXPLICITAMENTE presentes nos contextos abaixo. Se a informação não estiver nos contextos, responda "NÃO_ENCONTREI". Não use conhecimento prévio, não invente, não suponha.
 
-CONTEXTOS DISPONÍVEIS:
+Sua única função é REFORMULAR de forma clara e natural as informações que estão nos contextos fornecidos.
+
+═══════════════════════════════════════════════════════════════
+CONTEXTOS DO ACERVO (ÚNICA FONTE PERMITIDA):
 {context_text}
+═══════════════════════════════════════════════════════════════
 
 PERGUNTA DO USUÁRIO:
-{question}
+"{question}"
 
-INSTRUÇÕES DETALHADAS:
-1. Analise cuidadosamente os contextos fornecidos acima
-2. Responda APENAS com informações que estão explicitamente presentes nos contextos
-3. Se a informação for insuficiente, vaga ou não relacionada à pergunta, responda exatamente: "NÃO_ENCONTREI"
-4. Organize sua resposta de forma clara e estruturada:
-   - Use parágrafos curtos para facilitar a leitura
-   - Se houver múltiplos pontos, use tópicos numerados ou marcadores
-   - Destaque conceitos importantes quando relevante
-5. Seja preciso e objetivo, mas completo na explicação
-6. Sempre respeite as variações entre diferentes terreiros e tradições
-7. Use linguagem acessível, evitando jargões excessivos sem explicação
-8. NÃO invente informações que não estejam nos contextos
-9. NÃO cite os documentos ou páginas na resposta (isso será feito automaticamente)
-10. Se a resposta envolver práticas ritualísticas, lembre que podem variar
+═══════════════════════════════════════════════════════════════
 
-FORMATO DA RESPOSTA:
-- Seja direto e informativo
-- Use português brasileiro claro
-- Estruture com parágrafos ou tópicos quando apropriado
-- Mantenha tom respeitoso e educativo
+PROCESSO OBRIGATÓRIO (Chain-of-Thought):
 
-RESPOSTA COMPLETA:"""
+1. VERIFICAÇÃO DOS CONTEXTOS:
+   ❓ A resposta para "{question}" está EXPLICITAMENTE nos contextos acima?
+   ❓ Posso responder usando APENAS o que está escrito nos contextos?
+   
+   SE NÃO → Retorne "NÃO_ENCONTREI" imediatamente
+   SE SIM → Continue para etapa 2
+
+2. EXTRAÇÃO DAS INFORMAÇÕES:
+   - Identifique EXATAMENTE quais trechos dos contextos respondem a pergunta
+   - Copie mentalmente as informações relevantes
+   - NÃO adicione nada que não esteja nos contextos
+
+3. REFORMULAÇÃO LINGUÍSTICA:
+   - Reorganize as informações extraídas em linguagem natural
+   - Torne a resposta clara e bem estruturada
+   - Mantenha 100% fidelidade ao conteúdo original dos contextos
+
+═══════════════════════════════════════════════════════════════
+
+EXEMPLOS DE RESPOSTAS CORRETAS:
+
+EXEMPLO 1 - Informação presente nos contextos:
+Pergunta: "O que é Umbanda?"
+Contextos: [Contém definição completa de Umbanda]
+Resposta: "Umbanda é uma religião brasileira que surgiu no início do século XX, combinando elementos do espiritismo kardecista, candomblé, catolicismo e tradições indígenas. Caracteriza-se pela crença em Orixás, incorporação de entidades espirituais (como Pretos Velhos, Caboclos e Exus), e pela prática da caridade através de consultas espirituais e trabalhos de cura."
+
+EXEMPLO 2 - Informação parcial nos contextos:
+Pergunta: "Como é feita uma oferenda para Exu?"
+Contextos: [Contém elementos básicos mas não procedimento completo]
+Resposta: "Segundo o acervo, as oferendas para Exu geralmente incluem farofa, dendê, pimenta e cachaça, e são deixadas em encruzilhadas. 
+
+⚠️ **Importante**: As especificidades podem variar entre casas de Umbanda. Consulte um dirigente experiente para orientações completas."
+
+EXEMPLO 3 - Informação NÃO está nos contextos:
+Pergunta: "Qual a receita do banho de descarrego de Oxóssi?"
+Contextos: [Não contém essa informação específica]
+Resposta: "NÃO_ENCONTREI"
+
+═══════════════════════════════════════════════════════════════
+
+REGRAS ABSOLUTAS (VIOLAÇÃO = FALHA CRÍTICA):
+
+🔴 PROIBIDO ABSOLUTAMENTE:
+1. Usar conhecimento prévio sobre Umbanda que NÃO esteja nos contextos
+2. Inventar, supor ou deduzir informações não presentes nos contextos
+3. Completar informações parciais com seu conhecimento geral
+4. Dar respostas genéricas quando os contextos são vagos
+5. Adicionar detalhes, exemplos ou explicações não mencionadas nos contextos
+
+✅ PERMITIDO APENAS:
+1. Reformular linguisticamente o que está EXPLICITAMENTE nos contextos
+2. Organizar as informações em estrutura clara (parágrafos, listas)
+3. Usar formatação (negrito, marcadores) para clareza
+4. Indicar "NÃO_ENCONTREI" quando a informação não estiver completa
+
+═══════════════════════════════════════════════════════════════
+
+FORMATAÇÃO DA RESPOSTA:
+- Parágrafos curtos (3-4 linhas)
+- Use • para listas
+- Use **negrito** para termos importantes
+- Use ⚠️ para avisos sobre variações práticas
+- Tom respeitoso e educativo
+- Português brasileiro claro
+
+═══════════════════════════════════════════════════════════════
+
+VALIDAÇÃO FINAL ANTES DE RESPONDER:
+❓ Cada afirmação da minha resposta está presente nos contextos?
+❓ Adicionei alguma informação do meu conhecimento prévio?
+❓ Se a resposta for insuficiente, retornei "NÃO_ENCONTREI"?
+
+SE QUALQUER RESPOSTA FOR "NÃO" → Revise ou retorne "NÃO_ENCONTREI"
+
+═══════════════════════════════════════════════════════════════
+
+RESPOSTA FINAL (baseada SOMENTE nos contextos):
+
+"""
         
-        # Chama Gemini
+        # Chama Gemini com proteção contra alucinações
         response = model.generate_content(prompt)
         answer = response.text.strip()
         
-        # Se Gemini indicou que não encontrou, retorna a mensagem padrão
+        # Validação 1: Verifica se retornou NÃO_ENCONTREI
         if "NÃO_ENCONTREI" in answer.upper():
+            print("⚠️ Gemini retornou NÃO_ENCONTREI - informação não está no acervo")
             return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
         
-        # Retorna apenas a resposta do Gemini
-        # As fontes e avisos são exibidos pelo frontend no card SourceList
+        # Validação 2: Verifica se resposta está vazia ou muito curta
+        if len(answer.strip()) < 20:
+            print("⚠️ Resposta muito curta - possível falha")
+            return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
+        
+        # Validação 3: Detecta frases que indicam conhecimento prévio (alucinação)
+        hallucination_indicators = [
+            "de acordo com a tradição",
+            "na umbanda tradicional",
+            "geralmente se diz que",
+            "é sabido que",
+            "segundo especialistas",
+            "historicamente",
+            "na prática comum",
+            "tipicamente",
+            "usualmente"
+        ]
+        
+        answer_lower = answer.lower()
+        for indicator in hallucination_indicators:
+            if indicator in answer_lower:
+                # Verifica se o indicador aparece nos contextos
+                context_combined = " ".join([ctx.get("content", "").lower() for ctx in contexts])
+                if indicator not in context_combined:
+                    print(f"⚠️ ALERTA: Possível alucinação detectada - frase '{indicator}' não está nos contextos")
+                    # Não bloqueia, mas loga o alerta
+        
+        print(f"✅ Resposta gerada ({len(answer)} caracteres)")
+        
+        # Retorna resposta do Gemini (as fontes são exibidas pelo frontend)
         return answer
         
     except Exception as e:
