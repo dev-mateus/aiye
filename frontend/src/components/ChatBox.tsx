@@ -8,9 +8,14 @@ import React, { useState } from "react";
 interface ChatBoxProps {
   onSubmit: (question: string) => void;
   isLoading: boolean;
+  /**
+   * Sinal para resetar o campo de pergunta quando o valor mudar.
+   * Use um contador incremental no pai após a resposta aparecer.
+   */
+  resetSignal?: number;
 }
 
-export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading }) => {
+export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, resetSignal }) => {
   const [question, setQuestion] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -18,8 +23,6 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading }) => {
     const trimmed = question.trim();
     if (trimmed.length >= 3) {
       onSubmit(trimmed);
-      // Limpa o input após enviar
-      setQuestion("");
     }
   };
 
@@ -31,6 +34,13 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading }) => {
   };
 
   const isValid = question.trim().length >= 3;
+
+  // Limpa o input SOMENTE quando o pai sinalizar (após resposta aparecer)
+  React.useEffect(() => {
+    if (resetSignal !== undefined) {
+      setQuestion("");
+    }
+  }, [resetSignal]);
 
   return (
     <form onSubmit={handleSubmit} className="w-full">

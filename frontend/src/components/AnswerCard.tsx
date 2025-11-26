@@ -17,7 +17,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
     <div className="animate-fade-in bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
       {/* Pergunta em negrito no topo */}
       {question && (
-        <div className="mb-4 pb-4 border-b-2 border-umbanda-light">
+        <div className="mb-4 pb-4 border-b-2 border-umbanda-light md:border-none md:pb-0 md:mb-2">
           <p className="text-lg font-bold text-umbanda-dark">
             {question}
           </p>

@@ -19,6 +19,7 @@ function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
+  const [resetSignal, setResetSignal] = useState(0);
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -47,6 +48,8 @@ function ChatPage() {
     try {
       const result = await ask(question);
       setResponse(result);
+      // Sinaliza para limpar o input somente após a resposta aparecer
+      setResetSignal((n) => n + 1);
     } catch (err) {
       setError(
         err instanceof Error
@@ -107,15 +110,21 @@ function ChatPage() {
             </div>
           )}
 
-          {/* Empty State */}
-          {!response && !error && !isLoading && (
-            <div className="text-center py-20">
-              <p className="text-umbanda-secondary text-lg">
-                Comece fazendo uma pergunta sobre Umbanda
-              </p>
-              <p className="text-umbanda-accent text-sm mt-2">
-                Use Ctrl+Enter (Cmd+Enter no Mac) para enviar rapidamente
-              </p>
+          {/* Empty State + Input central quando não há resposta */}
+          {!response && (
+            <div className="py-10">
+              <div className="text-center mb-6">
+                <p className="text-umbanda-secondary text-lg">
+                  Comece fazendo uma pergunta sobre Umbanda
+                </p>
+                <p className="text-umbanda-accent text-sm mt-2">
+                  Use Ctrl+Enter (Cmd+Enter no Mac) para enviar rapidamente
+                </p>
+              </div>
+
+              <div className="bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
+                <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
+              </div>
             </div>
           )}
 
@@ -135,12 +144,14 @@ function ChatPage() {
         </div>
       </div>
 
-      {/* Input Fixo no Bottom */}
-      <div className="flex-shrink-0 border-t-2 border-umbanda-secondary bg-white shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <ChatBox onSubmit={handleAsk} isLoading={isLoading} />
+      {/* Input Fixo no Bottom – apenas DEPOIS de existir resposta */}
+      {response && (
+        <div className="flex-shrink-0 border-t-2 border-umbanda-secondary bg-white shadow-lg">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Footer Fixo */}
       <div className="flex-shrink-0 bg-white border-t border-umbanda-light">
