@@ -348,24 +348,37 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
             context_text += f"[{title} - pp. {page_start}-{page_end}]\n{content}\n\n"
             sources.add(f"{title} (pp. {page_start}-{page_end})")
         
-        # Prompt bem estruturado em português
-        prompt = f"""Você é um assistente especializado em conhecimentos sobre Umbanda.
-Sua tarefa é responder a pergunta do usuário sintetizando os contextos fornecidos.
+        # Prompt otimizado e estruturado
+        prompt = f"""Você é um especialista em Umbanda com profundo conhecimento sobre suas tradições, fundamentos e práticas.
 
-REGRAS IMPORTANTES:
-1. Responda APENAS com base nos contextos fornecidos
-2. Se o contexto for muito vago ou não contiver informação relevante, responda com exatamente: "NÃO_ENCONTREI"
-3. Respeite as variações das tradições entre terreiros
-4. Sempre mencione que consultar um dirigente é importante
-5. Use português claro e acessível
-6. Crie uma única resposta coerente (não liste trechos)
-7. NÃO cite os documentos - as fontes serão adicionadas automaticamente
-
-PERGUNTA: {question}
-
+CONTEXTOS DISPONÍVEIS:
 {context_text}
 
-Gere uma resposta completa, sintetizada e bem estruturada em português:"""
+PERGUNTA DO USUÁRIO:
+{question}
+
+INSTRUÇÕES DETALHADAS:
+1. Analise cuidadosamente os contextos fornecidos acima
+2. Responda APENAS com informações que estão explicitamente presentes nos contextos
+3. Se a informação for insuficiente, vaga ou não relacionada à pergunta, responda exatamente: "NÃO_ENCONTREI"
+4. Organize sua resposta de forma clara e estruturada:
+   - Use parágrafos curtos para facilitar a leitura
+   - Se houver múltiplos pontos, use tópicos numerados ou marcadores
+   - Destaque conceitos importantes quando relevante
+5. Seja preciso e objetivo, mas completo na explicação
+6. Sempre respeite as variações entre diferentes terreiros e tradições
+7. Use linguagem acessível, evitando jargões excessivos sem explicação
+8. NÃO invente informações que não estejam nos contextos
+9. NÃO cite os documentos ou páginas na resposta (isso será feito automaticamente)
+10. Se a resposta envolver práticas ritualísticas, lembre que podem variar
+
+FORMATO DA RESPOSTA:
+- Seja direto e informativo
+- Use português brasileiro claro
+- Estruture com parágrafos ou tópicos quando apropriado
+- Mantenha tom respeitoso e educativo
+
+RESPOSTA COMPLETA:"""
         
         # Chama Gemini
         response = model.generate_content(prompt)
