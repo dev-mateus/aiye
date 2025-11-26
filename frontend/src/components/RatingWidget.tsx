@@ -21,7 +21,8 @@ export default function RatingWidget({ question, answer, onSubmit }: RatingWidge
 
     setSubmitting(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/feedback`, {
+      const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+      const response = await fetch(`${API_BASE}/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
