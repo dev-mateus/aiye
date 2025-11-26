@@ -4,6 +4,8 @@
  */
 
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import RatingWidget from "./RatingWidget";
 
 interface AnswerCardProps {
@@ -31,8 +33,8 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
         </span>
       </div>
 
-      <div className="answer-text text-umbanda-dark whitespace-pre-wrap leading-relaxed">
-        {answer}
+      <div className="answer-text text-umbanda-dark leading-relaxed prose prose-sm max-w-none">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
       </div>
 
       {/* Sistema de avaliação */}
