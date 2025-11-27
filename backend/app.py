@@ -7,6 +7,7 @@ Define endpoints:
 """
 
 import time
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models import AskRequest, AskResponse, Source, FeedbackRequest
@@ -15,22 +16,26 @@ from backend.cache import get_response_cache
 from backend import settings
 from backend.database import init_database, save_feedback, get_all_feedbacks, get_feedback_stats, get_filtered_feedbacks, get_feedback_stats_by_period
 
-# Inicializa FastAPI
-app = FastAPI(
-    title="Aiye API",
-    description="Plataforma de perguntas sobre Umbanda baseada em RAG com Google Gemini",
-    version="1.0.0"
-)
-
-# Inicializa banco de dados na startup
-@app.on_event("startup")
-async def startup_event():
+# Lifespan para inicialização
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     try:
         init_database()
         print("✓ Banco de dados inicializado")
     except Exception as e:
         print(f"⚠️ Erro ao inicializar banco: {e}")
         print("Sistema continuará funcionando, mas feedbacks podem não ser salvos")
+    yield
+    # Shutdown (se necessário)
+
+# Inicializa FastAPI
+app = FastAPI(
+    title="Aiye API",
+    description="Plataforma de perguntas sobre Umbanda baseada em RAG com Google Gemini",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Configurar CORS (simplificado para evitar problemas)
 app.add_middleware(
