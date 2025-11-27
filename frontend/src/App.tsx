@@ -126,19 +126,13 @@ function ChatPage() {
 
           {/* Histórico de Conversas */}
           {chatHistory.map((message, index) => (
-            <div key={index} className="space-y-6 mb-8">
+            <div key={index} className="mb-8">
               <AnswerCard
                 answer={message.response.answer}
                 latencyMs={message.response.meta.latency_ms}
                 question={message.question}
+                sources={message.response.sources}
               />
-              {message.response.sources && message.response.sources.length > 0 && (
-                <SourceList sources={message.response.sources} />
-              )}
-              {/* Separador entre mensagens */}
-              {index < chatHistory.length - 1 && (
-                <div className="border-t-2 border-umbanda-light my-6"></div>
-              )}
             </div>
           ))}
         </div>
