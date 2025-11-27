@@ -424,7 +424,7 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
         model = genai.GenerativeModel("gemini-2.5-flash")
         
         # Monta contexto para Gemini (combina todos os chunks com fontes)
-        context_text = ""
+        context_text = "CONTEXTOS RELEVANTES DO ACERVO:\n\n"
         sources = set()
         
         for i, ctx in enumerate(contexts, 1):
@@ -432,25 +432,27 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
             page_start = ctx.get("page_start", "?")
             page_end = ctx.get("page_end", "?")
             content = ctx.get("content", "").strip()
+            score = ctx.get("final_score", ctx.get("score", 0))
             
-            context_text += f"{content}\n\n"
+            # Mantém estrutura interna mas não aparece na resposta ao usuário
+            context_text += f"[DOCUMENTO] {title} (pp. {page_start}-{page_end}) | Relevância: {score:.2f}\n{content}\n\n"
             sources.add(f"{title} (pp. {page_start}-{page_end})")
         
-        # Prompt simples e direto
+        # Prompt original (versão que funcionava bem) + proteção contra "Contexto X"
         prompt = f"""Com base nos documentos abaixo, responda a pergunta de forma clara e objetiva.
-
-Se a informação não estiver nos documentos, responda apenas: "Os documentos disponíveis tratam de [temas principais], mas não abordam especificamente [tema perguntado]."
 
 DOCUMENTOS:
 {context_text}
 
 PERGUNTA: {question}
 
-INSTRUÇÕES:
+INSTRUÇÕES IMPORTANTES:
 - Responda em português, de forma educativa e respeitosa
 - Use **negrito** para termos importantes
-- NÃO mencione "Contexto X" ou numeração de documentos
-- Se não houver informação, seja breve e objetivo"""
+- Base sua resposta APENAS nas informações presentes nos documentos acima
+- NÃO mencione "Contexto X", "Documento X" ou numeração na resposta ao usuário
+- Se a informação não estiver nos documentos, responda: "Os documentos disponíveis tratam de [temas principais], mas não abordam especificamente [tema perguntado]."
+- Seja claro, didático e fiel ao conteúdo dos documentos"""
         
         # Chama Gemini
         response = model.generate_content(prompt)
