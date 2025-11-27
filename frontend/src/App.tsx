@@ -13,12 +13,16 @@ import AdminPage from "./components/AdminPage";
 import { ask, healthCheck, AskResponse } from "./api";
 import "./styles.css";
 
+interface ChatMessage {
+  question: string;
+  response: AskResponse;
+}
+
 function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [response, setResponse] = useState<AskResponse | null>(null);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [pendingQuestion, setPendingQuestion] = useState<string>("");
 
   // Verifica saúde do backend ao montar
@@ -44,13 +48,11 @@ function ChatPage() {
     setIsLoading(true);
     setError(null);
     setPendingQuestion(question);
-    // NÃO atualiza currentQuestion ainda - mantém a pergunta antiga visível
 
     try {
       const result = await ask(question);
-      setResponse(result);
-      // Atualiza a pergunta SOMENTE após a resposta chegar
-      setCurrentQuestion(question);
+      // Adiciona a nova mensagem ao histórico
+      setChatHistory(prev => [...prev, { question, response: result }]);
       // Limpa a pendingQuestion para resetar o input
       setPendingQuestion("");
     } catch (err) {
@@ -59,7 +61,6 @@ function ChatPage() {
           ? err.message
           : "Erro ao comunicar com o servidor"
       );
-      setResponse(null);
       setPendingQuestion("");
     } finally {
       setIsLoading(false);
@@ -114,8 +115,8 @@ function ChatPage() {
             </div>
           )}
 
-          {/* Input central quando não há resposta */}
-          {!response && (
+          {/* Input central quando não há histórico */}
+          {chatHistory.length === 0 && (
             <div className="py-10">
               <div className="bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
                 <ChatBox onSubmit={handleAsk} isLoading={isLoading} value={pendingQuestion} />
@@ -123,24 +124,28 @@ function ChatPage() {
             </div>
           )}
 
-          {/* Response */}
-          {response && (
-            <div className="space-y-6 mb-6">
+          {/* Histórico de Conversas */}
+          {chatHistory.map((message, index) => (
+            <div key={index} className="space-y-6 mb-8">
               <AnswerCard
-                answer={response.answer}
-                latencyMs={response.meta.latency_ms}
-                question={currentQuestion}
+                answer={message.response.answer}
+                latencyMs={message.response.meta.latency_ms}
+                question={message.question}
               />
-              {response.sources && response.sources.length > 0 && (
-                <SourceList sources={response.sources} />
+              {message.response.sources && message.response.sources.length > 0 && (
+                <SourceList sources={message.response.sources} />
+              )}
+              {/* Separador entre mensagens */}
+              {index < chatHistory.length - 1 && (
+                <div className="border-t-2 border-umbanda-light my-6"></div>
               )}
             </div>
-          )}
+          ))}
         </div>
       </div>
 
-      {/* Input Fixo no Bottom – DEPOIS de existir resposta (mantém durante loading) */}
-      {response && (
+      {/* Input Fixo no Bottom – DEPOIS de existir histórico (mantém durante loading) */}
+      {chatHistory.length > 0 && (
         <div className="flex-shrink-0 bg-white shadow-lg">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <ChatBox onSubmit={handleAsk} isLoading={isLoading} value={pendingQuestion} />
