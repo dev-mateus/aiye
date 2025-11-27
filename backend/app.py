@@ -85,7 +85,10 @@ async def ask(request: AskRequest) -> AskResponse:
         )
 
         resposta_padrao = "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
-        if answer.strip() == resposta_padrao:
+        resposta_nao_encontrada = "Os documentos disponíveis tratam de"
+        
+        # Não retorna fontes quando não houver resposta válida
+        if answer.strip() == resposta_padrao or resposta_nao_encontrada in answer:
             sources = []
         else:
             sources_dict = {}
@@ -138,7 +141,10 @@ async def ask_raw(request: Request) -> AskResponse:
         )
 
         resposta_padrao = "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
-        if answer.strip() == resposta_padrao:
+        resposta_nao_encontrada = "Os documentos disponíveis tratam de"
+        
+        # Não retorna fontes quando não houver resposta válida
+        if answer.strip() == resposta_padrao or resposta_nao_encontrada in answer:
             sources = []
         else:
             sources_dict = {}
