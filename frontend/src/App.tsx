@@ -19,7 +19,7 @@ function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
-  const [resetSignal, setResetSignal] = useState(0);
+  const [pendingQuestion, setPendingQuestion] = useState<string>("");
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -43,6 +43,7 @@ function ChatPage() {
 
     setIsLoading(true);
     setError(null);
+    setPendingQuestion(question);
     // NÃO atualiza currentQuestion ainda - mantém a pergunta antiga visível
 
     try {
@@ -50,8 +51,8 @@ function ChatPage() {
       setResponse(result);
       // Atualiza a pergunta SOMENTE após a resposta chegar
       setCurrentQuestion(question);
-      // Sinaliza para limpar o input somente após a resposta aparecer
-      setResetSignal((n) => n + 1);
+      // Limpa a pendingQuestion para resetar o input
+      setPendingQuestion("");
     } catch (err) {
       setError(
         err instanceof Error
@@ -59,6 +60,7 @@ function ChatPage() {
           : "Erro ao comunicar com o servidor"
       );
       setResponse(null);
+      setPendingQuestion("");
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +118,7 @@ function ChatPage() {
           {!response && (
             <div className="py-10">
               <div className="bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
-                <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
+                <ChatBox onSubmit={handleAsk} isLoading={isLoading} value={pendingQuestion} />
               </div>
             </div>
           )}
@@ -141,7 +143,7 @@ function ChatPage() {
       {response && (
         <div className="flex-shrink-0 bg-white shadow-lg">
           <div className="max-w-4xl mx-auto px-4 py-4">
-            <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
+            <ChatBox onSubmit={handleAsk} isLoading={isLoading} value={pendingQuestion} />
           </div>
         </div>
       )}

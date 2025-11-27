@@ -3,20 +3,21 @@
  * Textarea para entrada de perguntas e botão de envio
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface ChatBoxProps {
   onSubmit: (question: string) => void;
   isLoading: boolean;
-  /**
-   * Sinal para resetar o campo de pergunta quando o valor mudar.
-   * Use um contador incremental no pai após a resposta aparecer.
-   */
-  resetSignal?: number;
+  value?: string; // Valor controlado externamente
 }
 
-export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, resetSignal }) => {
-  const [question, setQuestion] = useState("");
+export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, value = "" }) => {
+  const [question, setQuestion] = useState(value);
+
+  // Sincroniza com o valor externo (quando pai limpa, limpa aqui também)
+  useEffect(() => {
+    setQuestion(value);
+  }, [value]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,13 +35,6 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, resetSign
   };
 
   const isValid = question.trim().length >= 3;
-
-  // Limpa o input SOMENTE quando o pai sinalizar (após resposta aparecer)
-  React.useEffect(() => {
-    if (resetSignal !== undefined) {
-      setQuestion("");
-    }
-  }, [resetSignal]);
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
