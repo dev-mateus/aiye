@@ -81,7 +81,8 @@ async def ask(request: AskRequest) -> AskResponse:
             top_k=settings.TOP_K,
             min_sim=settings.MIN_SIM,
             use_cache=True,
-            use_reranking=True
+            use_reranking=True,
+            conversation_history=request.history
         )
 
         resposta_padrao = "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."

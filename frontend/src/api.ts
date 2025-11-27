@@ -23,17 +23,22 @@ export interface AskResponse {
   };
 }
 
+export interface ConversationMessage {
+  question: string;
+  answer: string;
+}
+
 /**
  * Faz uma pergunta ao backend e retorna a resposta com fontes
  */
-export async function ask(question: string): Promise<AskResponse> {
+export async function ask(question: string, history?: ConversationMessage[]): Promise<AskResponse> {
   try {
     const response = await fetch(`${API_BASE}/ask`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, history }),
     });
 
     if (!response.ok) {

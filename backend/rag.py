@@ -400,7 +400,7 @@ def search(
     return final_results
 
 
-def generate_answer(question: str, contexts: list[dict]) -> str:
+def generate_answer(question: str, contexts: list[dict], conversation_history: list[dict] = None) -> str:
     """
     Gera uma resposta coerente e sintetizada usando Google Gemini.
     
@@ -409,6 +409,7 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
     2. Se houver contextos, envia para Gemini sintetizar uma resposta
     3. Gemini gera resposta em português, bem estruturada
     4. Adiciona citações de fontes (documentos e páginas)
+    5. Considera histórico de conversa para perguntas de seguimento
     
     Integração: Google Generative AI (Gemini) - modelo de ponta para português
     """
@@ -438,18 +439,28 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
             context_text += f"[DOCUMENTO] {title} (pp. {page_start}-{page_end}) | Relevância: {score:.2f}\n{content}\n\n"
             sources.add(f"{title} (pp. {page_start}-{page_end})")
         
-        # Prompt original (versão que funcionava bem) + proteção contra "Contexto X"
+        # Monta histórico de conversa se existir
+        history_text = ""
+        if conversation_history and len(conversation_history) > 0:
+            history_text = "HISTÓRICO DA CONVERSA (para contexto):\n\n"
+            for i, msg in enumerate(conversation_history[-3:], 1):  # Últimas 3 mensagens
+                history_text += f"Pergunta {i}: {msg.get('question', '')}\n"
+                history_text += f"Resposta {i}: {msg.get('answer', '')}\n\n"
+            history_text += "---\n\n"
+        
+        # Prompt original (versão que funcionava bem) + proteção contra "Contexto X" + histórico
         prompt = f"""Com base nos documentos abaixo, responda a pergunta de forma clara e objetiva.
 
-DOCUMENTOS:
+{history_text}DOCUMENTOS:
 {context_text}
 
-PERGUNTA: {question}
+PERGUNTA ATUAL: {question}
 
 INSTRUÇÕES IMPORTANTES:
 - Responda em português, de forma educativa e respeitosa
 - Use **negrito** para termos importantes
 - Base sua resposta APENAS nas informações presentes nos documentos acima
+- Se houver histórico de conversa, use-o para entender o contexto (ex: "aprofunde", "explique melhor", etc.)
 - NÃO mencione "Contexto X", "Documento X" ou numeração na resposta ao usuário
 - Se a informação não estiver nos documentos, responda: "Os documentos disponíveis tratam de [temas principais], mas não abordam especificamente [tema perguntado]."
 - Seja claro, didático e fiel ao conteúdo dos documentos"""
@@ -505,7 +516,8 @@ def ask_with_cache(
     min_sim: float = 0.30,
     use_cache: bool = True,
     use_reranking: bool = True,
-    index_dir: str = None
+    index_dir: str = None,
+    conversation_history: list[dict] = None
 ) -> tuple[str, list[dict]]:
     """
     Função principal que integra cache, busca, re-ranking e geração de resposta.
@@ -517,6 +529,7 @@ def ask_with_cache(
         use_cache: Se True, usa cache de respostas
         use_reranking: Se True, aplica re-ranking
         index_dir: Diretório do índice (opcional, usa settings.INDEX_DIR se None)
+        conversation_history: Histórico de perguntas/respostas anteriores
     
     Returns:
         Tupla (resposta, contextos)
@@ -541,7 +554,7 @@ def ask_with_cache(
         use_reranking=use_reranking
     )
     
-    answer = generate_answer(question, contexts)
+    answer = generate_answer(question, contexts, conversation_history=conversation_history)
     
     # Armazena no cache
     if use_cache:

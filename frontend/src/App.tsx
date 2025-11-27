@@ -49,7 +49,13 @@ function ChatPage() {
     setPendingQuestion(question);
 
     try {
-      const result = await ask(question);
+      // Converte histórico para o formato esperado pelo backend
+      const history = chatHistory.map(msg => ({
+        question: msg.question,
+        answer: msg.response.answer
+      }));
+      
+      const result = await ask(question, history);
       // Adiciona a nova mensagem ao histórico
       setChatHistory(prev => [...prev, { question, response: result }]);
       // Limpa a pendingQuestion para resetar o input

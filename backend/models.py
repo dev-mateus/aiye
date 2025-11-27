@@ -9,6 +9,7 @@ from typing import Optional
 class AskRequest(BaseModel):
     """Requisição de pergunta."""
     question: str = Field(..., min_length=3, max_length=1000, description="Pergunta do usuário")
+    history: Optional[list[dict]] = Field(None, description="Histórico de conversa (perguntas e respostas anteriores)")
 
 
 class Source(BaseModel):
