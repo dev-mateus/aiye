@@ -112,8 +112,8 @@ function ChatPage() {
             </div>
           )}
 
-          {/* Input central quando não há resposta OU quando está carregando */}
-          {(!response || isLoading) && (
+          {/* Input central quando não há resposta */}
+          {!response && (
             <div className="py-10">
               <div className="bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
                 <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
@@ -122,7 +122,7 @@ function ChatPage() {
           )}
 
           {/* Response */}
-          {response && !isLoading && (
+          {response && (
             <div className="space-y-6 mb-6">
               <AnswerCard
                 answer={response.answer}
@@ -137,8 +137,8 @@ function ChatPage() {
         </div>
       </div>
 
-      {/* Input Fixo no Bottom – apenas DEPOIS de existir resposta E não estar carregando */}
-      {response && !isLoading && (
+      {/* Input Fixo no Bottom – DEPOIS de existir resposta (mantém durante loading) */}
+      {response && (
         <div className="flex-shrink-0 bg-white shadow-lg">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
