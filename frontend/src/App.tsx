@@ -8,7 +8,6 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ChatBox } from "./components/ChatBox";
 import { AnswerCard } from "./components/AnswerCard";
-import { SourceList } from "./components/SourceList";
 import AdminPage from "./components/AdminPage";
 import { ask, healthCheck, AskResponse } from "./api";
 import "./styles.css";
