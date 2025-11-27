@@ -43,11 +43,13 @@ function ChatPage() {
 
     setIsLoading(true);
     setError(null);
-    setCurrentQuestion(question);
+    // NÃO atualiza currentQuestion ainda - mantém a pergunta antiga visível
 
     try {
       const result = await ask(question);
       setResponse(result);
+      // Atualiza a pergunta SOMENTE após a resposta chegar
+      setCurrentQuestion(question);
       // Sinaliza para limpar o input somente após a resposta aparecer
       setResetSignal((n) => n + 1);
     } catch (err) {
@@ -110,8 +112,8 @@ function ChatPage() {
             </div>
           )}
 
-          {/* Input central quando não há resposta (sem textos auxiliares) */}
-          {!response && (
+          {/* Input central quando não há resposta OU quando está carregando */}
+          {(!response || isLoading) && (
             <div className="py-10">
               <div className="bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
                 <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
@@ -120,7 +122,7 @@ function ChatPage() {
           )}
 
           {/* Response */}
-          {response && (
+          {response && !isLoading && (
             <div className="space-y-6 mb-6">
               <AnswerCard
                 answer={response.answer}
@@ -135,8 +137,8 @@ function ChatPage() {
         </div>
       </div>
 
-      {/* Input Fixo no Bottom – apenas DEPOIS de existir resposta */}
-      {response && (
+      {/* Input Fixo no Bottom – apenas DEPOIS de existir resposta E não estar carregando */}
+      {response && !isLoading && (
         <div className="flex-shrink-0 bg-white shadow-lg">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
