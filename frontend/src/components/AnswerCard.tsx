@@ -33,8 +33,23 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
         </span>
       </div>
 
-      <div className="answer-text text-umbanda-dark leading-relaxed prose prose-sm max-w-none prose-strong:text-umbanda-primary prose-strong:font-bold prose-ul:list-disc prose-ul:ml-5 prose-li:my-1">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
+      <div className="answer-text text-umbanda-dark leading-relaxed">
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            strong: ({node, ...props}) => <strong className="font-bold text-umbanda-primary" {...props} />,
+            em: ({node, ...props}) => <em className="italic" {...props} />,
+            ul: ({node, ...props}) => <ul className="list-disc ml-6 my-2 space-y-1" {...props} />,
+            ol: ({node, ...props}) => <ol className="list-decimal ml-6 my-2 space-y-1" {...props} />,
+            li: ({node, ...props}) => <li className="ml-1" {...props} />,
+            p: ({node, ...props}) => <p className="my-2" {...props} />,
+            h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-3" {...props} />,
+            h2: ({node, ...props}) => <h2 className="text-xl font-bold my-2" {...props} />,
+            h3: ({node, ...props}) => <h3 className="text-lg font-bold my-2" {...props} />,
+          }}
+        >
+          {answer}
+        </ReactMarkdown>
       </div>
 
       {/* Sistema de avaliação */}

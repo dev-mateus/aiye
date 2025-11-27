@@ -437,115 +437,39 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
             context_text += f"[CONTEXTO {i}] {title} (pp. {page_start}-{page_end}) | Relevância: {score:.2f}\n{content}\n\n"
             sources.add(f"{title} (pp. {page_start}-{page_end})")
         
-        # Prompt com proteção forte contra alucinações
-        prompt = f"""**REGRA FUNDAMENTAL**: Você DEVE responder APENAS com informações que estão EXPLICITAMENTE presentes nos contextos abaixo. Se a informação não estiver nos contextos, responda "NÃO_ENCONTREI". Não use conhecimento prévio, não invente, não suponha.
-
-Sua única função é REFORMULAR de forma clara e natural as informações que estão nos contextos fornecidos.
+        # Prompt com proteção contra alucinações (versão otimizada)
+        prompt = f"""Você é um assistente especializado em Umbanda que responde perguntas baseando-se EXCLUSIVAMENTE nos documentos fornecidos.
 
 ═══════════════════════════════════════════════════════════════
-CONTEXTOS DO ACERVO (ÚNICA FONTE PERMITIDA):
+DOCUMENTOS DO ACERVO:
 {context_text}
 ═══════════════════════════════════════════════════════════════
 
-PERGUNTA DO USUÁRIO:
-"{question}"
+PERGUNTA: "{question}"
 
-═══════════════════════════════════════════════════════════════
+INSTRUÇÕES:
+1. **Fonte única**: Use APENAS informações dos documentos acima
+2. **Não invente**: Se a informação não estiver nos documentos, diga "Não encontrei essa informação específica no acervo disponível"
+3. **Seja claro**: Organize a resposta de forma estruturada e fácil de ler
+4. **Formatação**: Use **negrito** para termos importantes, listas com • para múltiplos itens
+5. **Tom**: Respeitoso, educativo e direto
 
-PROCESSO OBRIGATÓRIO (Chain-of-Thought):
-
-1. VERIFICAÇÃO DOS CONTEXTOS:
-   ❓ A resposta para "{question}" está EXPLICITAMENTE nos contextos acima?
-   ❓ Posso responder usando APENAS o que está escrito nos contextos?
-   
-   SE NÃO → Retorne "NÃO_ENCONTREI" imediatamente
-   SE SIM → Continue para etapa 2
-
-2. EXTRAÇÃO DAS INFORMAÇÕES:
-   - Identifique EXATAMENTE quais trechos dos contextos respondem a pergunta
-   - Copie mentalmente as informações relevantes
-   - NÃO adicione nada que não esteja nos contextos
-
-3. REFORMULAÇÃO LINGUÍSTICA:
-   - Reorganize as informações extraídas em linguagem natural
-   - Torne a resposta clara e bem estruturada
-   - Mantenha 100% fidelidade ao conteúdo original dos contextos
-
-═══════════════════════════════════════════════════════════════
-
-EXEMPLOS DE RESPOSTAS CORRETAS:
-
-EXEMPLO 1 - Informação presente nos contextos:
-Pergunta: "O que é Umbanda?"
-Contextos: [Contém definição completa de Umbanda]
-Resposta: "Umbanda é uma religião brasileira que surgiu no início do século XX, combinando elementos do espiritismo kardecista, candomblé, catolicismo e tradições indígenas. Caracteriza-se pela crença em Orixás, incorporação de entidades espirituais (como Pretos Velhos, Caboclos e Exus), e pela prática da caridade através de consultas espirituais e trabalhos de cura."
-
-EXEMPLO 2 - Informação parcial nos contextos:
-Pergunta: "Como é feita uma oferenda para Exu?"
-Contextos: [Contém elementos básicos mas não procedimento completo]
-Resposta: "Segundo o acervo, as oferendas para Exu geralmente incluem farofa, dendê, pimenta e cachaça, e são deixadas em encruzilhadas. 
-
-⚠️ **Importante**: As especificidades podem variar entre casas de Umbanda. Consulte um dirigente experiente para orientações completas."
-
-EXEMPLO 3 - Informação NÃO está nos contextos:
-Pergunta: "Qual a receita do banho de descarrego de Oxóssi?"
-Contextos: [Não contém essa informação específica]
-Resposta: "NÃO_ENCONTREI"
-
-═══════════════════════════════════════════════════════════════
-
-REGRAS ABSOLUTAS (VIOLAÇÃO = FALHA CRÍTICA):
-
-🔴 PROIBIDO ABSOLUTAMENTE:
-1. Usar conhecimento prévio sobre Umbanda que NÃO esteja nos contextos
-2. Inventar, supor ou deduzir informações não presentes nos contextos
-3. Completar informações parciais com seu conhecimento geral
-4. Dar respostas genéricas quando os contextos são vagos
-5. Adicionar detalhes, exemplos ou explicações não mencionadas nos contextos
-
-✅ PERMITIDO APENAS:
-1. Reformular linguisticamente o que está EXPLICITAMENTE nos contextos
-2. Organizar as informações em estrutura clara (parágrafos, listas)
-3. Usar formatação (negrito, marcadores) para clareza
-4. Indicar "NÃO_ENCONTREI" quando a informação não estiver completa
-
-═══════════════════════════════════════════════════════════════
-
-FORMATAÇÃO DA RESPOSTA:
-- Parágrafos curtos (3-4 linhas)
-- Use • para listas
-- Use **negrito** para termos importantes
-- Use ⚠️ para avisos sobre variações práticas
-- Tom respeitoso e educativo
-- Português brasileiro claro
-
-═══════════════════════════════════════════════════════════════
-
-VALIDAÇÃO FINAL ANTES DE RESPONDER:
-❓ Cada afirmação da minha resposta está presente nos contextos?
-❓ Adicionei alguma informação do meu conhecimento prévio?
-❓ Se a resposta for insuficiente, retornei "NÃO_ENCONTREI"?
-
-SE QUALQUER RESPOSTA FOR "NÃO" → Revise ou retorne "NÃO_ENCONTREI"
-
-═══════════════════════════════════════════════════════════════
-
-RESPOSTA FINAL (baseada SOMENTE nos contextos):
+RESPOSTA:
 
 """
         
-        # Chama Gemini com proteção contra alucinações
+        # Chama Gemini
         response = model.generate_content(prompt)
         answer = response.text.strip()
         
-        # Validação 1: Verifica se retornou NÃO_ENCONTREI
-        if "NÃO_ENCONTREI" in answer.upper():
-            print("⚠️ Gemini retornou NÃO_ENCONTREI - informação não está no acervo")
+        # Validação: Verifica se não encontrou informação
+        if "não encontrei" in answer.lower() and len(answer) < 100:
+            print("⚠️ Informação não encontrada no acervo")
             return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
         
-        # Validação 2: Verifica se resposta está vazia ou muito curta
-        if len(answer.strip()) < 20:
-            print("⚠️ Resposta muito curta - possível falha")
+        # Validação: Resposta muito curta (possível falha)
+        if len(answer.strip()) < 15:
+            print("⚠️ Resposta muito curta")
             return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
         
         # Validação 3: Detecta frases que indicam conhecimento prévio (alucinação)
