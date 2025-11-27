@@ -131,7 +131,7 @@ function ChatPage() {
                 latencyMs={response.meta.latency_ms}
                 question={currentQuestion}
               />
-              {response.sources.length > 0 && (
+              {response.sources && response.sources.length > 0 && (
                 <SourceList sources={response.sources} />
               )}
             </div>

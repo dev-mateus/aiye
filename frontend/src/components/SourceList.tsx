@@ -64,8 +64,10 @@ export const SourceList: React.FC<SourceListProps> = ({ sources }) => {
                       {source.title}
                     </span>
                     <p className="text-sm text-umbanda-secondary mt-1">
-                      Páginas {source.page_start}
-                      {source.page_end !== source.page_start && `–${source.page_end}`}
+                      {source.page_end === source.page_start 
+                        ? `Página ${source.page_start}`
+                        : `Páginas ${source.page_start}–${source.page_end}`
+                      }
                     </p>
                     {source.score !== undefined && (
                       <p className="text-xs text-umbanda-accent mt-2 font-medium">
