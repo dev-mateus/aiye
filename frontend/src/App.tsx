@@ -137,7 +137,7 @@ function ChatPage() {
 
       {/* Input Fixo no Bottom – apenas DEPOIS de existir resposta */}
       {response && (
-        <div className="flex-shrink-0 border-t-2 border-umbanda-secondary bg-white shadow-lg">
+        <div className="flex-shrink-0 bg-white shadow-lg">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <ChatBox onSubmit={handleAsk} isLoading={isLoading} resetSignal={resetSignal} />
           </div>

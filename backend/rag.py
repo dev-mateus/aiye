@@ -437,37 +437,21 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
             context_text += f"[CONTEXTO {i}] {title} (pp. {page_start}-{page_end}) | Relevância: {score:.2f}\n{content}\n\n"
             sources.add(f"{title} (pp. {page_start}-{page_end})")
         
-        # Prompt com proteção contra alucinações (versão otimizada)
-        prompt = f"""Você é um assistente especializado em Umbanda que responde perguntas baseando-se EXCLUSIVAMENTE nos documentos fornecidos.
+        # Prompt simples e direto (versão original)
+        prompt = f"""Com base nos documentos abaixo, responda a pergunta de forma clara e objetiva.
 
-═══════════════════════════════════════════════════════════════
-DOCUMENTOS DO ACERVO:
+DOCUMENTOS:
 {context_text}
-═══════════════════════════════════════════════════════════════
 
-PERGUNTA: "{question}"
+PERGUNTA: {question}
 
-INSTRUÇÕES:
-1. **Fonte única**: Use APENAS informações dos documentos acima
-2. **Não invente**: Se a informação não estiver nos documentos, diga "Não encontrei essa informação específica no acervo disponível"
-3. **Seja claro**: Organize a resposta de forma estruturada e fácil de ler
-4. **Formatação**: Use **negrito** para termos importantes, listas com • para múltiplos itens
-5. **Tom**: Respeitoso, educativo e direto
-
-RESPOSTA:
-
-"""
+Responda em português, de forma educativa e respeitosa. Use **negrito** para termos importantes."""
         
         # Chama Gemini
         response = model.generate_content(prompt)
         answer = response.text.strip()
         
-        # Validação: Verifica se não encontrou informação
-        if "não encontrei" in answer.lower() and len(answer) < 100:
-            print("⚠️ Informação não encontrada no acervo")
-            return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
-        
-        # Validação: Resposta muito curta (possível falha)
+        # Validação básica
         if len(answer.strip()) < 15:
             print("⚠️ Resposta muito curta")
             return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."

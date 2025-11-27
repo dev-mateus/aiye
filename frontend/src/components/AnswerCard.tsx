@@ -37,7 +37,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
           components={{
-            strong: ({node, ...props}) => <strong className="font-bold text-umbanda-primary" {...props} />,
+            strong: ({node, ...props}) => <strong className="font-bold text-umbanda-dark" {...props} />,
             em: ({node, ...props}) => <em className="italic" {...props} />,
             ul: ({node, ...props}) => <ul className="list-disc ml-6 my-2 space-y-1" {...props} />,
             ol: ({node, ...props}) => <ol className="list-decimal ml-6 my-2 space-y-1" {...props} />,
