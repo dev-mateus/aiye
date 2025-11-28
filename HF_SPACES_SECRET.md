@@ -14,7 +14,10 @@
 
 4. Preencha:
    - **Name:** `DATABASE_URL`
-   - **Value:** `postgresql://***REDACTED***`
+   - **Value:** Sua connection string do Neon PostgreSQL
+     - Formato: `postgresql://user:password@host.region.aws.neon.tech/dbname?sslmode=require`
+     - Obtenha em: https://console.neon.tech > seu projeto > Connection Details
+     - **NUNCA** commite essa URL no código!
 
 5. Clique em **"Add secret"**
 

@@ -1,11 +1,23 @@
 import psycopg2
 import os
+from dotenv import load_dotenv
 
-# Testar várias configurações de conexão
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    print("⚠️ ERRO: DATABASE_URL não configurada!")
+    print("")
+    print("Configure a variável de ambiente DATABASE_URL no arquivo .env:")
+    print("DATABASE_URL=postgresql://user:password@host.region.neon.tech/db?sslmode=require")
+    print("")
+    print("Obtenha a connection string em: https://console.neon.tech")
+    exit(1)
+
+# Testar conexão com a configuração do .env
 configs = [
-    ("Com sslmode=require", "postgresql://***REDACTED***"),
-    ("Com sslmode=prefer", "postgresql://neondb_owner:npg_CHtQo6Uk9LEa@ep-polished-truth-ae0kk3zf.c-2.us-east-2.aws.neon.tech/neondb?sslmode=prefer"),
-    ("Sem sslmode", "postgresql://neondb_owner:npg_CHtQo6Uk9LEa@ep-polished-truth-ae0kk3zf.c-2.us-east-2.aws.neon.tech/neondb"),
+    ("Configuração do .env", DATABASE_URL),
 ]
 
 for name, url in configs:

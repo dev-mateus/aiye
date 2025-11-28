@@ -136,6 +136,21 @@ if (!ADMIN_PASSWORD) {
 - ✅ Database URL via env var
 - ⚠️ Endpoints admin públicos (proteção apenas no frontend)
 
+**Incidentes de Segurança Resolvidos**:
+
+### 🚨 28/11/2025 - PostgreSQL URI Exposta (CRÍTICO - RESOLVIDO)
+- **Detecção**: GitGuardian alertou sobre credencial exposta no histórico do Git
+- **Arquivos afetados**: 
+  - `HF_SPACES_SECRET.md` (commit f451dbb)
+  - `check_db_size.py` (commit inicial)
+  - `test_db_connection.py` (commit inicial)
+- **Ação tomada**:
+  1. ✅ Removida credencial de todos os arquivos
+  2. ✅ DATABASE_URL agora obrigatoriamente via variável de ambiente
+  3. ✅ Scripts validam presença da env var antes de executar
+  4. 🔄 **AÇÃO NECESSÁRIA**: Rotacionar credencial do banco Neon
+  5. 🔄 **AÇÃO NECESSÁRIA**: Usar `git filter-repo` ou BFG para limpar histórico
+
 **Recomendações futuras**:
 1. Implementar autenticação JWT no backend
 2. Adicionar rate limiting nos endpoints

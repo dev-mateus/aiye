@@ -4,8 +4,20 @@ Script para verificar tamanho real da tabela feedbacks no PostgreSQL.
 import psycopg2
 import os
 from typing import Optional
+from dotenv import load_dotenv
 
-DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql://***REDACTED***"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    print("⚠️ ERRO: DATABASE_URL não configurada!")
+    print("")
+    print("Configure a variável de ambiente DATABASE_URL no arquivo .env:")
+    print("DATABASE_URL=postgresql://user:password@host.region.neon.tech/db?sslmode=require")
+    print("")
+    print("Obtenha a connection string em: https://console.neon.tech")
+    exit(1)
 
 try:
     conn = psycopg2.connect(DATABASE_URL)
