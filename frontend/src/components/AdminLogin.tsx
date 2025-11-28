@@ -10,8 +10,33 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Senha simples por enquanto (pode ser melhorada com hash/backend futuramente)
-  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'Aiye@2024#';
+  // ⚠️ IMPORTANTE: Configure VITE_ADMIN_PASSWORD nas variáveis de ambiente
+  // Vercel: Settings > Environment Variables > VITE_ADMIN_PASSWORD
+  // Local: arquivo .env > VITE_ADMIN_PASSWORD=sua_senha_segura
+  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
+
+  if (!ADMIN_PASSWORD) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-umbanda-light via-white to-blue-50 flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full">
+          <div className="bg-red-50 border-2 border-red-400 text-red-800 rounded-lg shadow-xl p-8">
+            <div className="text-center mb-4">
+              <svg className="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold mb-2 text-center">Configuração Necessária</h2>
+            <p className="text-sm mb-4">
+              A variável de ambiente <code className="bg-red-100 px-2 py-1 rounded">VITE_ADMIN_PASSWORD</code> não está configurada.
+            </p>
+            <p className="text-xs">
+              Configure essa variável nas configurações de ambiente do seu serviço de deploy (Vercel, Netlify, etc).
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
