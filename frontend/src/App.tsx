@@ -2,7 +2,7 @@
  * Componente principal da aplicação
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -17,12 +17,21 @@ interface ChatMessage {
   response: AskResponse;
 }
 
+// Perguntas sugeridas para empty state
+const SUGGESTED_QUESTIONS = [
+  "O que é Umbanda?",
+  "Quais são os Orixás principais?",
+  "Como funciona uma gira de Umbanda?",
+  "Qual a diferença entre Umbanda e Candomblé?",
+];
+
 function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
   const [pendingQuestion, setPendingQuestion] = useState<string>("");
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -37,6 +46,18 @@ function ChatPage() {
     };
     checkBackend();
   }, []);
+
+  // Auto-scroll quando nova mensagem é adicionada
+  useEffect(() => {
+    if (chatHistory.length > 0 && lastMessageRef.current) {
+      setTimeout(() => {
+        lastMessageRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+  }, [chatHistory.length]);
 
   const handleAsk = async (question: string) => {
     if (!isBackendOnline) {
@@ -74,6 +95,11 @@ function ChatPage() {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-umbanda-light via-white to-blue-50">
+      {/* Progress Bar */}
+      {isLoading && (
+        <div className="fixed top-0 left-0 right-0 h-1 bg-umbanda-primary z-50 progress-bar" />
+      )}
+
       {/* Header Fixo */}
       <div className="flex-shrink-0 border-b-2 border-umbanda-secondary bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -120,23 +146,49 @@ function ChatPage() {
             </div>
           )}
 
-          {/* Input central quando não há histórico */}
+          {/* Empty State com perguntas sugeridas */}
           {chatHistory.length === 0 && (
-            <div className="py-10">
+            <div className="py-10 space-y-6">
               <div className="bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
                 <ChatBox onSubmit={handleAsk} isLoading={isLoading} value={pendingQuestion} />
+              </div>
+              
+              {/* Perguntas Sugeridas */}
+              <div className="max-w-2xl mx-auto">
+                <p className="text-sm font-semibold text-umbanda-secondary mb-3 px-2">
+                  💡 Sugestões de perguntas:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {SUGGESTED_QUESTIONS.map((question, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAsk(question)}
+                      disabled={isLoading}
+                      className="text-left p-4 bg-white border-2 border-umbanda-light rounded-lg hover:border-umbanda-primary hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                      <span className="text-sm text-umbanda-dark group-hover:text-umbanda-primary font-medium">
+                        {question}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
           {/* Histórico de Conversas */}
           {chatHistory.map((message, index) => (
-            <div key={index} className="mb-8">
+            <div 
+              key={index} 
+              className="mb-8"
+              ref={index === chatHistory.length - 1 ? lastMessageRef : null}
+            >
               <AnswerCard
                 answer={message.response.answer}
                 latencyMs={message.response.meta.latency_ms}
                 question={message.question}
                 sources={message.response.sources}
+                isLoading={isLoading && index === chatHistory.length - 1}
               />
             </div>
           ))}

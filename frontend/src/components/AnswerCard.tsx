@@ -12,13 +12,48 @@ import { Source } from "../api";
 interface AnswerCardProps {
   answer: string;
   latencyMs: number;
-  question?: string; // Adicionado para o sistema de avaliação
-  sources?: Source[]; // Documentos consultados
+  question?: string;
+  sources?: Source[];
+  isLoading?: boolean;
 }
 
-export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, question, sources }) => {
+export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, question, sources, isLoading }) => {
   const [isSourcesExpanded, setIsSourcesExpanded] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(answer);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Erro ao copiar:', err);
+    }
+  };
   
+  // Skeleton loading durante carregamento
+  if (isLoading) {
+    return (
+      <div className="animate-fade-in bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg">
+        {question && (
+          <div className="mb-4 pb-4 border-b-2 border-umbanda-light">
+            <p className="text-lg font-bold text-umbanda-dark">{question}</p>
+          </div>
+        )}
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-umbanda-primary">Resposta</h2>
+        </div>
+        <div className="animate-pulse space-y-3">
+          <div className="h-4 bg-gray-200 rounded w-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+          <div className="h-4 bg-gray-200 rounded w-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
       {/* Pergunta em negrito no topo */}
@@ -32,9 +67,28 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-umbanda-primary">Resposta</h2>
-        <span className="text-xs text-umbanda-accent font-medium">
-          {latencyMs.toFixed(0)}ms
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleCopy}
+            className="text-xs px-3 py-1 rounded-md border border-umbanda-secondary hover:bg-umbanda-light transition-colors flex items-center gap-1"
+            title="Copiar resposta"
+          >
+            {copySuccess ? (
+              <>
+                <span>✓</span>
+                <span>Copiado!</span>
+              </>
+            ) : (
+              <>
+                <span>📋</span>
+                <span>Copiar</span>
+              </>
+            )}
+          </button>
+          <span className="text-xs text-umbanda-accent font-medium">
+            {latencyMs.toFixed(0)}ms
+          </span>
+        </div>
       </div>
 
       <div className="answer-text text-umbanda-dark leading-relaxed">
