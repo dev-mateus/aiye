@@ -14,6 +14,8 @@ short_description: Plataforma RAG para perguntas sobre Umbanda
 
 Plataforma **RAG (Retrieval-Augmented Generation)** para responder perguntas sobre Umbanda, Espiritismo e temas afins utilizando inteligência artificial, embeddings vetoriais e LLM via Groq (endpoint OpenAI-compatible).
 
+> Atualização (jan/2026): A expansão de consultas via LLM foi desativada por padrão para reforçar o grounding no acervo e evitar dependências quebradas. A busca continua usando sinônimos controlados do domínio de Umbanda. É possível reativar com a flag `ENABLE_LLM_EXPANSION=true` no `.env`.
+
 ## 🎯 Objetivo
 
 Criar um espaço de conhecimento onde perguntas sobre Umbanda são respondidas com base em um acervo curado de PDFs. As respostas são geradas por IA e sempre citam as fontes consultadas, respeitando as variações entre diferentes terreiros e tradições.
@@ -139,17 +141,24 @@ aiye/
 - **Índice:** FAISS (IndexFlatIP) armazena os embeddings para busca eficiente por similaridade
 - **Chunking:** PDFs divididos em chunks de 1500 caracteres com overlap de 200 para manter contexto
 - **Busca:** Similaridade de cosseno entre a pergunta embedada e os chunks do acervo (top-8, threshold 0.30)
-- **Geração:** Google Gemini 2.5 Flash sintetiza a resposta final baseada nos contextos recuperados
+- **Geração:** LLM via Groq (cliente OpenAI) sintetiza a resposta final baseada nos contextos recuperados
 - **Metadados:** JSON com informações sobre documentos, chunks, páginas e scores de relevância
 
 ## 🤖 Integração com Google Gemini
+## 🤖 Integração com Groq (OpenAI-compatible)
 
-O projeto usa **Google Gemini 2.5 Flash** para gerar respostas inteligentes:
+O backend usa o cliente OpenAI apontando para o endpoint Groq:
 
-- Configure `GOOGLE_API_KEY` no arquivo `.env` (desenvolvimento) ou nas variáveis de ambiente do HF Spaces (produção)
-- O modelo sintetiza informações dos PDFs em respostas coerentes, estruturadas e em português claro
-- Respostas não incluem citações (adicionadas automaticamente pelo sistema)
-- Prompt instrui o modelo a respeitar variações regionais e indicar quando não encontra informação relevante
+- Configure `GROQ_API_KEY` no `.env` (dev) ou em Repository Secrets (HF Spaces)
+- Variáveis suportadas: `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_BASE_URL`
+- Prompt reforça: “Reformule usando APENAS os contextos. Não invente informação.”
+
+Gemini permanece opcional para futuro fallback (via `GOOGLE_API_KEY`).
+
+### Expansão de Query (LLM) – Estado Atual
+- Por padrão está DESATIVADA para garantir respostas estritamente baseadas no acervo.
+- Somente sinônimos do domínio são usados para expandir queries (ex.: `orixá` → `orishas`, `divindades`).
+- Para reativar: defina `ENABLE_LLM_EXPANSION=true` no `.env`. A lógica usa um prompt restritivo e aplica filtros locais para evitar drift.
 
 ## ⚠️ Aviso Ético
 
@@ -196,7 +205,7 @@ Ver guia completo em [`DEPLOY_HUGGINGFACE.md`](./DEPLOY_HUGGINGFACE.md)
                                                    ├─ FAISS Index (LFS)
                                                    ├─ PDFs (LFS)  
                                                    ├─ Sentence Transformers
-                                                   └─ Gemini API (Google)
+                                                   └─ Groq API (OpenAI-compatible)
 ```
 
 ## 📦 Dependências
@@ -207,7 +216,7 @@ Ver guia completo em [`DEPLOY_HUGGINGFACE.md`](./DEPLOY_HUGGINGFACE.md)
 - **FAISS 1.13.0** - Busca vetorial eficiente (CPU)
 - **Sentence Transformers 3.0.1** - Geração de embeddings
 - **PyMuPDF 1.24.9** - Parsing e extração de texto de PDFs
-- **Google Generative AI ≥0.4.0** - Cliente oficial do Gemini
+- **OpenAI 1.55.3** - Cliente OpenAI (endpoint Groq)
 - **Pydantic 2.x** - Validação de dados
 
 ### Frontend

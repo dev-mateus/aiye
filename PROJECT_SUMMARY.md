@@ -36,7 +36,7 @@ Frontend (Vercel)          Backend (HF Spaces)          Serviços Externos
 - **Frontend:** React 18.2 + Vite 5.0 + TypeScript 5.0 + Tailwind CSS 3.3 → Vercel
 - **Backend:** FastAPI 0.115.0 + Python 3.11-slim + Docker → Hugging Face Spaces
 - **Storage:** Git LFS para PDFs (7 arquivos, ~20MB) + FAISS index (133KB) + metadata.json (22MB)
-- **LLM:** Google Gemini 2.5 Flash API (google-generativeai 0.8.3)
+- **LLM:** Groq (cliente OpenAI). Gemini opcional como fallback.
 - **RAG:** 11.799 vetores indexados com FAISS 1.13.0 + Sentence Transformers 3.3.1
 - **Branch:** `main` (padronizada, `master` removida)
 
@@ -147,7 +147,7 @@ Frontend (Vercel)          Backend (HF Spaces)          Serviços Externos
 **Pipeline Completo:**
 
 ```
-PDFs → Extração → Chunking → Embeddings → FAISS Index → Busca → Gemini → Resposta
+PDFs → Extração → Chunking → Embeddings → FAISS Index → Busca → LLM (Groq) → Resposta
 ```
 
 | Etapa | Tecnologia | Configuração | Status |
@@ -157,7 +157,7 @@ PDFs → Extração → Chunking → Embeddings → FAISS Index → Busca → Ge
 | **Embeddings** | sentence-transformers | all-MiniLM-L6-v2 (384 dim) | ✅ |
 | **Índice** | FAISS 1.13.0 | IndexFlatIP (11.799 vetores) | ✅ |
 | **Busca** | Cosine similarity | Top-8, threshold 0.30 | ✅ |
-| **LLM** | Gemini 2.5 Flash | google-generativeai 0.8.3 | ✅ |
+| **LLM** | Groq (OpenAI-compatible) | openai 1.55.3 | ✅ |
 | **Persistência** | JSON | metadata.json (22MB, LFS) | ✅ |
 
 **Metadados:**
@@ -315,7 +315,7 @@ Response:
 - **Uvicorn 0.30.0** - ASGI server performático
 - **FAISS 1.13.0** - Vector search (IndexFlatIP)
 - **SentenceTransformers 3.3.1** - Embeddings (all-MiniLM-L6-v2)
-- **Google-generativeai 0.8.3** - Gemini 2.5 Flash API
+- **OpenAI 1.55.3** - Cliente OpenAI (endpoint Groq)
 - **PyMuPDF 1.24.14** - PDF parsing otimizado
 - **Pydantic 2.10.5** - Data validation
 - **Python-dotenv 1.0.1** - Gerenciamento de .env
@@ -345,7 +345,7 @@ Response:
 | Feature | Status | Descrição |
 |---------|--------|-----------|
 | Deploy Produção | ✅ | Vercel (frontend) + HF Spaces (backend) |
-| Integração Gemini | ✅ | Google Gemini 2.5 Flash API |
+| Integração LLM (Groq) | ✅ | Cliente OpenAI (endpoint Groq) |
 | Git LFS | ✅ | Versionamento de assets grandes (PDFs, índices) |
 | Interface Responsiva | ✅ | Mobile-first, Tailwind CSS 3.3 |
 | Documentação | ✅ | 8 arquivos completos (PT-BR + EN) |

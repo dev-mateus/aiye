@@ -1,5 +1,23 @@
 # Melhorias Avançadas no RAG - Changelog
 
+## 2026-01-22 — Expansão de Query via LLM (estado)
+
+- Alteração: Expansão de query por LLM foi DESATIVADA por padrão.
+- Motivos: Garantir grounding 100% no acervo e remover dependência quebrada.
+- Comportamento atual:
+   - Usa apenas dicionário de sinônimos específicos de Umbanda.
+   - `expand_query_with_llm()` retorna apenas a query original enquanto migramos para Groq.
+- Configuração:
+   - Flag `.env`: `ENABLE_LLM_EXPANSION=false` (padrão).
+   - Para habilitar: `ENABLE_LLM_EXPANSION=true` (com prompt restritivo e filtros locais).
+- Código afetado:
+   - `backend/settings.py`: nova flag `ENABLE_LLM_EXPANSION`.
+   - `backend/rag.py`: inicialização do `QueryExpander` usa a flag.
+   - `backend/query_expansion.py`: default `use_llm=settings.ENABLE_LLM_EXPANSION`.
+- Observações:
+   - Recall pode reduzir em parafrases complexas; precisão e aderência aumentam.
+   - Reimplementaremos a expansão LLM com Groq em versão posterior.
+
 ## 🚀 Resumo Executivo
 
 Implementação de **técnicas de ponta em RAG (Retrieval-Augmented Generation)** para melhorar significativamente a qualidade e relevância das respostas do chatbot de Umbanda.

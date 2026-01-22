@@ -69,6 +69,7 @@ POST /ask
 - Embeda pergunta
 - Busca top-5 chunks mais similares no FAISS
 - Filtra por min_similarity (0.25)
+- Expansão de query: por padrão usa apenas sinônimos controlados (LLM desativado)
 - Chama `generate_answer()` com contextos
 - Retorna resposta + fontes + metadados
 
@@ -117,6 +118,23 @@ def generate_answer(question: str, contexts: list[dict]) -> str:
     
     # Por enquanto, placeholder
     return gerar_resposta_placeholder(contexts)
+
+### Feature Flag: Expansão de Query via LLM
+
+- Estado atual (jan/2026): DESATIVADA por padrão para reforçar grounding no acervo.
+- Controle via `.env`:
+
+```
+ENABLE_LLM_EXPANSION=false  # padrão
+```
+
+- Comportamento:
+    - `false`: apenas `expand_query_with_synonyms()` é usado
+    - `true`: `expand_query_with_llm()` é habilitado com prompt restritivo e filtros locais
+- Código:
+    - `backend/settings.py`: lê `ENABLE_LLM_EXPANSION`
+    - `backend/rag.py`: `get_query_expander(use_llm=settings.ENABLE_LLM_EXPANSION, use_synonyms=True)`
+    - `backend/query_expansion.py`: default `use_llm=settings.ENABLE_LLM_EXPANSION`
 ```
 
 ### Mudar tamanho de chunks
@@ -172,6 +190,10 @@ http://localhost:8000/redoc      # ReDoc
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "O que é Umbanda?"}'
+
+Logs esperados (com LLM expansion desativada):
+- `🔄 Query Expansion: 1 query → N queries` (sinônimos apenas)
+- `🔍 Dense Search: X resultados únicos`
 ```
 
 ### Verificar índice FAISS
