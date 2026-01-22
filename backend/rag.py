@@ -9,13 +9,13 @@ FILOSOFIA FUNDAMENTAL DO SISTEMA:
 1. FONTES PERMITIDAS:
    ✅ Documentos PDF indexados no FAISS
    ✅ Contextos recuperados pela busca vetorial/híbrida
-   ❌ Conhecimento prévio do LLM (Gemini)
+    ❌ Conhecimento prévio do LLM (Groq/LLM)
    ❌ Informações externas ou de bases de conhecimento gerais
 
-2. PAPEL DO GEMINI:
-   - ÚNICO uso: Reformular linguisticamente os contextos recuperados
-   - PROIBIDO: Adicionar informações, deduzir, supor, inventar
-   - Gemini = "Tradutor de contextos para linguagem natural"
+2. PAPEL DO LLM (GROQ - LLAMA 3.x):
+    - ÚNICO uso: Reformular linguisticamente os contextos recuperados
+    - PROIBIDO: Adicionar informações, deduzir, supor, inventar
+    - LLM = "Tradutor de contextos para linguagem natural"
 
 3. QUANDO NÃO HÁ INFORMAÇÃO:
    - Retornar "Não encontrei essa informação no acervo"
@@ -51,8 +51,7 @@ import numpy as np
 import fitz  # PyMuPDF
 import faiss
 from sentence_transformers import SentenceTransformer
-import google.generativeai as genai
-from google.api_core import exceptions as google_exceptions
+from openai import OpenAI, APIError, RateLimitError
 from . import settings
 from .cache import get_response_cache
 from .reranker import rerank_results
@@ -404,27 +403,30 @@ def search(
 
 def generate_answer(question: str, contexts: list[dict], conversation_history: list[dict] = None) -> str:
     """
-    Gera uma resposta coerente e sintetizada usando Google Gemini.
+    Gera uma resposta coerente e sintetizada usando Groq (endpoint OpenAI-compatible).
     
     Estratégia:
     1. Se não houver contextos, avisa que precisa consultar dirigente
-    2. Se houver contextos, envia para Gemini sintetizar uma resposta
-    3. Gemini gera resposta em português, bem estruturada
+    2. Se houver contextos, envia para o modelo sintetizar uma resposta
+    3. Modelo gera resposta em português, bem estruturada
     4. Adiciona citações de fontes (documentos e páginas)
     5. Considera histórico de conversa para perguntas de seguimento
     
-    Integração: Google Generative AI (Gemini) - modelo de ponta para português
+    Integração: Groq Llama 3.x via client OpenAI-compatible
     """
     if not contexts:
         return "Não encontrei essa informação no acervo, entre em contato com o administrador da plataforma."
     
     try:
-        # Configura Gemini com a API key
-        if not settings.GOOGLE_API_KEY:
-            return "⚠️ Erro: GOOGLE_API_KEY não configurada. Por favor, defina a variável de ambiente."
-        
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        # Configura Groq com a API key
+        if not settings.GROQ_API_KEY:
+            return "⚠️ Erro: GROQ_API_KEY não configurada. Por favor, defina a variável de ambiente."
+
+        client = OpenAI(
+            api_key=settings.GROQ_API_KEY,
+            base_url=settings.GROQ_BASE_URL,
+        )
+        model_name = settings.GROQ_MODEL or "llama-3.1-70b-versatile"
         
         # Monta contexto para Gemini (combina todos os chunks com fontes)
         context_text = "CONTEXTOS RELEVANTES DO ACERVO:\n\n"
@@ -466,41 +468,52 @@ INSTRUÇÕES IMPORTANTES:
 - NÃO mencione "Contexto X", "Documento X" ou numeração na resposta ao usuário
 - Se a informação não estiver nos documentos, responda: "Os documentos disponíveis tratam de [temas principais], mas não abordam especificamente [tema perguntado]."
 - Seja claro, didático e fiel ao conteúdo dos documentos"""
-        
-            # Chama Gemini com retry e exponential backoff
-            max_retries = 3
-            retry_delay = 2  # segundos
-            answer = None
-        
-            for attempt in range(max_retries):
-                try:
-                    response = model.generate_content(prompt)
-                    answer = response.text.strip()
-                    break  # Sucesso, sai do loop
-                except google_exceptions.ResourceExhausted as e:
-                    # Erro 429 - Quota excedida
-                    if attempt < max_retries - 1:
-                        wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
-                        print(f"⚠️ Quota Gemini excedida. Tentativa {attempt + 1}/{max_retries}. Aguardando {wait_time}s...")
-                        time.sleep(wait_time)
-                    else:
-                        print(f"✗ Quota Gemini esgotada após {max_retries} tentativas")
-                        return (
-                            "🕐 **Limite de requisições atingido**\n\n"
-                            "Nosso sistema utiliza o Google Gemini API (tier gratuito: 5 requisições/minuto).\n\n"
-                            "**Por favor, aguarde 1 minuto e tente novamente.**\n\n"
-                            "💡 *Dica: Perguntas já feitas recentemente são respondidas instantaneamente do cache.*"
-                        )
-                except Exception as e:
-                    print(f"✗ Erro ao chamar Gemini (tentativa {attempt + 1}): {e}")
-                    if attempt < max_retries - 1:
-                        time.sleep(retry_delay)
-                    else:
-                        return f"⚠️ Erro ao gerar resposta: {str(e)}"
-        
-            # Se não conseguiu resposta após retries
-            if answer is None:
-                return "Erro ao processar a pergunta. Por favor, tente novamente."
+
+        # Chama Groq com retry e exponential backoff
+        max_retries = 3
+        retry_delay = 2  # segundos
+        answer = None
+
+        for attempt in range(max_retries):
+            try:
+                response = client.chat.completions.create(
+                    model=model_name,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.2,
+                    max_tokens=800,
+                )
+                answer = response.choices[0].message.content.strip()
+                break  # Sucesso, sai do loop
+            except RateLimitError as e:
+                # Erro 429 - Quota excedida
+                if attempt < max_retries - 1:
+                    wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                    print(f"⚠️ Quota Groq excedida. Tentativa {attempt + 1}/{max_retries}. Aguardando {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"✗ Quota Groq esgotada após {max_retries} tentativas")
+                    return (
+                        "🕐 **Limite de requisições atingido**\n\n"
+                        "Nosso sistema utiliza o endpoint Groq (free tier).\n\n"
+                        "**Por favor, aguarde 1 minuto e tente novamente.**\n\n"
+                        "💡 *Dica: Perguntas já feitas recentemente são respondidas instantaneamente do cache.*"
+                    )
+            except APIError as e:
+                print(f"✗ Erro de API Groq (tentativa {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                else:
+                    return f"⚠️ Erro ao gerar resposta: {str(e)}"
+            except Exception as e:
+                print(f"✗ Erro ao chamar Groq (tentativa {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                else:
+                    return f"⚠️ Erro ao gerar resposta: {str(e)}"
+
+        # Se não conseguiu resposta após retries
+        if answer is None:
+            return "Erro ao processar a pergunta. Por favor, tente novamente."
         
         # Validação básica
         if len(answer.strip()) < 15:
@@ -530,25 +543,16 @@ INSTRUÇÕES IMPORTANTES:
                     # Não bloqueia, mas loga o alerta
         
         print(f"✅ Resposta gerada ({len(answer)} caracteres)")
-        
-        # Retorna resposta do Gemini (as fontes são exibidas pelo frontend)
+
+        # Retorna resposta do modelo (as fontes são exibidas pelo frontend)
         return answer
-        
-        except google_exceptions.ResourceExhausted as e:
-            # Erro 429 tratado acima, este é um fallback adicional
-            print(f"✗ Quota Gemini esgotada (exceção global): {e}")
-            return (
-                "🕐 **Limite de requisições atingido**\n\n"
-                "Nosso sistema utiliza o Google Gemini API (tier gratuito: 5 requisições/minuto).\n\n"
-                "**Por favor, aguarde 1 minuto e tente novamente.**\n\n"
-                "💡 *Dica: Perguntas já feitas recentemente são respondidas instantaneamente do cache.*"
-            )
+
     except Exception as e:
-        print(f"Erro ao chamar Gemini: {e}")
+        print(f"Erro ao chamar LLM: {e}")
         # Fallback: resposta simples se falhar
         return (
             f"Desculpe, ocorreu um erro ao processar sua pergunta: {str(e)}. "
-                "Por favor, tente novamente mais tarde."
+            "Por favor, tente novamente mais tarde."
         )
 
 

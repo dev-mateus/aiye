@@ -21,6 +21,9 @@ PORT: int = int(os.getenv("PORT", "8000"))
 TOP_K: int = int(os.getenv("TOP_K", "8"))
 MIN_SIM: float = float(os.getenv("MIN_SIM", "0.30"))
 GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
+GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
+GROQ_BASE_URL: str = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 
 # Frontend
 VITE_API_BASE: str = os.getenv("VITE_API_BASE", "http://localhost:8000")

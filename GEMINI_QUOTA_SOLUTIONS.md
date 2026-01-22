@@ -1,5 +1,7 @@
 # Soluções para Quota do Google Gemini API
 
+> **Atualização:** o backend foi migrado para usar Groq (endpoint OpenAI-compatible) para reduzir bloqueios de quota do Gemini. As estratégias abaixo seguem válidas como referência de mitigação e fallback.
+
 ## 🔴 Problema Atual
 
 **Erro:** `429 ResourceExhausted - Quota exceeded`  
