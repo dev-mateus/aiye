@@ -12,7 +12,7 @@ short_description: Plataforma RAG para perguntas sobre Umbanda
 
 # Aiye – Plataforma de Perguntas sobre Umbanda
 
-Plataforma **RAG (Retrieval-Augmented Generation)** para responder perguntas sobre Umbanda, Espiritismo e temas afins utilizando inteligência artificial, embeddings vetoriais e integração com Google Gemini 2.5 Flash.
+Plataforma **RAG (Retrieval-Augmented Generation)** para responder perguntas sobre Umbanda, Espiritismo e temas afins utilizando inteligência artificial, embeddings vetoriais e LLM via Groq (endpoint OpenAI-compatible).
 
 ## 🎯 Objetivo
 
@@ -23,7 +23,8 @@ Criar um espaço de conhecimento onde perguntas sobre Umbanda são respondidas c
 **Desenvolvimento Local:**
 - **Python 3.11+** (backend)
 - **Node.js 18+** (frontend)
-- **Google API Key** (Gemini 2.5 Flash)
+- **Groq API Key** (obrigatório)
+- **Google API Key** (opcional, para fallback futuro)
 - ~2 GB de espaço em disco (para modelos de embedding e índices FAISS)
 
 **Produção:**
@@ -54,7 +55,9 @@ Criar um espaço de conhecimento onde perguntas sobre Umbanda são respondidas c
    cp .env.example .env
    ```
 
-4. **Ingerir PDFs:**
+4. **Definir `GROQ_API_KEY` no `.env`**
+
+5. **Ingerir PDFs:**
    - Coloque os PDFs em `backend/data/pdfs/`
    - Execute:
      ```bash
