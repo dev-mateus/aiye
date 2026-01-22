@@ -426,7 +426,7 @@ def generate_answer(question: str, contexts: list[dict], conversation_history: l
             api_key=settings.GROQ_API_KEY,
             base_url=settings.GROQ_BASE_URL,
         )
-        model_name = settings.GROQ_MODEL or "llama-3.1-70b-versatile"
+        model_name = settings.GROQ_MODEL or "llama-3.3-70b-versatile"
         
         # Monta contexto para Gemini (combina todos os chunks com fontes)
         context_text = "CONTEXTOS RELEVANTES DO ACERVO:\n\n"
