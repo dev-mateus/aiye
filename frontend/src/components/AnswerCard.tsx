@@ -162,7 +162,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
                           }
                         </p>
                         {source.score !== undefined && (
-                          <p className="text-xs text-umbanda-gold mt-1 font-medium">
+                          <p className="text-xs text-umbanda-accent mt-1 font-medium">
                             Relevância: {(source.score * 100).toFixed(0)}%
                           </p>
                         )}

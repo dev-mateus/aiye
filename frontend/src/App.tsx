@@ -104,7 +104,7 @@ function ChatPage() {
       <div className="flex-shrink-0 border-b border-umbanda-border bg-umbanda-dark/95 backdrop-blur-sm shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-gold to-umbanda-amber flex items-center justify-center shadow-lg">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center shadow-lg">
               <span className="text-lg">🕯️</span>
             </div>
             <div>
@@ -157,7 +157,7 @@ function ChatPage() {
           {chatHistory.length === 0 && (
             <div className="py-12 space-y-8">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-umbanda-gold to-umbanda-amber mb-4 shadow-lg">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest mb-4 shadow-lg">
                   <span className="text-3xl">✨</span>
                 </div>
                 <h2 className="text-2xl font-bold text-umbanda-text mb-2">
@@ -211,7 +211,7 @@ function ChatPage() {
                 className="flex gap-3"
                 ref={index === chatHistory.length - 1 ? lastMessageRef : null}
               >
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-gold to-umbanda-amber flex items-center justify-center shadow-lg">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center shadow-lg">
                   <span className="text-lg">🕯️</span>
                 </div>
                 <div className="flex-1 max-w-[85%]">
