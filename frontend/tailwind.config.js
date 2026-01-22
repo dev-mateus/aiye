@@ -6,29 +6,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Verde mata/natureza - primário
-        "umbanda-primary": "#2D5016",
-        "umbanda-forest": "#4A7C59",
+        // Backgrounds escuros (Oxossi/Obá - floresta sagrada)
+        'umbanda-bg': '#0a1410',
+        'umbanda-bg-light': '#111d17',
+        'umbanda-dark': '#1a2e1a',
+        'umbanda-darker': '#0d1a0d',
         
-        // Dourado/âmbar - sagrado
-        "umbanda-gold": "#D4AF37",
-        "umbanda-amber": "#DAA520",
+        // Verde floresta (primário)
+        'umbanda-primary': '#4a7c59',
+        'umbanda-forest': '#5a9d6a',
+        'umbanda-accent': '#7cb97f',
+        'umbanda-light': '#8fd191',
         
-        // Terra/barro - terreiro
-        "umbanda-earth": "#8B4513",
-        "umbanda-clay": "#A0826D",
+        // Dourado sagrado
+        'umbanda-gold': '#D4AF37',
+        'umbanda-amber': '#DAA520',
         
-        // Marfim/búzios - luz
-        "umbanda-light": "#FFF8DC",
-        "umbanda-ivory": "#FFFFF0",
+        // Textos
+        'umbanda-text': '#e8f5e9',
+        'umbanda-text-muted': '#b0c4b1',
         
-        // Roxo/místico - orixá
-        "umbanda-purple": "#663399",
-        
-        // Neutros naturais
-        "umbanda-sand": "#F5F5DC",
-        "umbanda-dark": "#2C2416",
-        "umbanda-text": "#3D3D3D",
+        // Bordas e cards
+        'umbanda-border': '#2d4a2d',
+        'umbanda-card': '#151f19',
       },
     },
   },
