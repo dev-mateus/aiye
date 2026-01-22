@@ -28,8 +28,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, value = "
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Ctrl+Enter or Cmd+Enter para enviar
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    // Enter para enviar (sem Shift)
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
       handleSubmit(e as any);
     }
   };
@@ -38,44 +39,45 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, value = "
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex flex-col gap-3">
-        <textarea
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Faça sua pergunta."
-          disabled={isLoading}
-          rows={4}
-          className="w-full px-4 py-3 border-2 border-umbanda-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-umbanda-primary focus:border-umbanda-primary disabled:bg-umbanda-light disabled:cursor-not-allowed resize-none text-umbanda-dark placeholder-umbanda-accent"
-        />
-
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-umbanda-accent">
-            {question.length} caracteres
-            {question.length >= 3 && (
-              <span className="ml-2 text-umbanda-primary font-semibold">✓ Pronto para enviar</span>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={!isValid || isLoading}
-            className={`px-6 py-2 rounded-lg font-medium transition-all ${
-              isValid && !isLoading
-                ? "bg-umbanda-primary text-white hover:bg-umbanda-accent active:scale-95 cursor-pointer shadow-md hover:shadow-lg"
-                : "bg-umbanda-light text-umbanda-accent cursor-not-allowed"
-            }`}
-          >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-umbanda-primary border-t-transparent"></span>
-                Buscando...
-              </span>
-            ) : (
-              "Perguntar"
-            )}
-          </button>
+      <div className="flex gap-2 items-end">
+        <div className="flex-1 relative">
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Pergunte sobre Umbanda..."
+            disabled={isLoading}
+            className="w-full px-4 py-3 border border-umbanda-clay/20 rounded-xl 
+                     focus:outline-none focus:ring-2 focus:ring-umbanda-gold focus:border-transparent 
+                     disabled:bg-umbanda-sand/50 disabled:cursor-not-allowed
+                     resize-none overflow-y-auto
+                     placeholder:text-umbanda-text/40
+                     bg-white/80 backdrop-blur-sm"
+            rows={1}
+            style={{
+              minHeight: '48px',
+              maxHeight: '120px'
+            }}
+          />
         </div>
+        
+        <button
+          type="submit"
+          disabled={!isValid || isLoading}
+          className="px-5 py-3 bg-gradient-to-r from-umbanda-gold to-umbanda-amber
+                   text-white font-semibold rounded-xl
+                   hover:shadow-md hover:scale-105
+                   disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100
+                   transition-all duration-200
+                   flex items-center gap-2 h-12"
+        >
+          {isLoading ? (
+            <span className="animate-spin">⏳</span>
+          ) : (
+            <span>✨</span>
+          )}
+          <span className="hidden sm:inline">Enviar</span>
+        </button>
       </div>
     </form>
   );

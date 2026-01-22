@@ -6,12 +6,29 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Verde mata/natureza - primário
         "umbanda-primary": "#2D5016",
-        "umbanda-secondary": "#6BA586",
-        "umbanda-accent": "#8B9D6F",
-        "umbanda-light": "#E8F1E2",
-        "umbanda-warm": "#D4C5B9",
-        "umbanda-dark": "#1F2937",
+        "umbanda-forest": "#4A7C59",
+        
+        // Dourado/âmbar - sagrado
+        "umbanda-gold": "#D4AF37",
+        "umbanda-amber": "#DAA520",
+        
+        // Terra/barro - terreiro
+        "umbanda-earth": "#8B4513",
+        "umbanda-clay": "#A0826D",
+        
+        // Marfim/búzios - luz
+        "umbanda-light": "#FFF8DC",
+        "umbanda-ivory": "#FFFFF0",
+        
+        // Roxo/místico - orixá
+        "umbanda-purple": "#663399",
+        
+        // Neutros naturais
+        "umbanda-sand": "#F5F5DC",
+        "umbanda-dark": "#2C2416",
+        "umbanda-text": "#3D3D3D",
       },
     },
   },

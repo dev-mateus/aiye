@@ -34,49 +34,34 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
   // Skeleton loading durante carregamento
   if (isLoading) {
     return (
-      <div className="animate-fade-in bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg">
-        {question && (
-          <div className="mb-4 pb-4 border-b-2 border-umbanda-light">
-            <p className="text-lg font-bold text-umbanda-dark">{question}</p>
-          </div>
-        )}
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-umbanda-primary">Resposta</h2>
-        </div>
+      <div className="animate-fade-in bg-white/60 backdrop-blur-sm rounded-2xl p-5 shadow-sm border border-umbanda-clay/10">
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-gray-200 rounded w-full"></div>
-          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-          <div className="h-4 bg-gray-200 rounded w-full"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-3 bg-umbanda-clay/20 rounded w-full"></div>
+          <div className="h-3 bg-umbanda-clay/20 rounded w-11/12"></div>
+          <div className="h-3 bg-umbanda-clay/20 rounded w-4/5"></div>
+          <div className="h-3 bg-umbanda-clay/20 rounded w-full"></div>
+          <div className="h-3 bg-umbanda-clay/20 rounded w-3/4"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in bg-white border-2 border-umbanda-secondary rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
-      {/* Pergunta em negrito no topo */}
-      {question && (
-        <div className="mb-4 pb-4 border-b-2 border-umbanda-light md:border-none md:pb-0 md:mb-2">
-          <p className="text-lg font-bold text-umbanda-dark">
-            {question}
-          </p>
-        </div>
-      )}
-
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-umbanda-primary">Resposta</h2>
-        <div className="flex items-center gap-2">
+    <div className="animate-fade-in">
+      <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-5 shadow-sm border border-umbanda-clay/10 hover:shadow-md transition-shadow">
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-xs text-umbanda-text/60 font-medium">
+            {latencyMs.toFixed(0)}ms
+          </span>
           <button
             onClick={handleCopy}
-            className="text-xs px-3 py-1 rounded-md border border-umbanda-secondary hover:bg-umbanda-light transition-colors flex items-center gap-1"
+            className="text-xs px-3 py-1 rounded-lg border border-umbanda-clay/20 hover:bg-umbanda-sand transition-colors flex items-center gap-1.5"
             title="Copiar resposta"
           >
             {copySuccess ? (
               <>
-                <span>✓</span>
-                <span>Copiado!</span>
+                <span className="text-umbanda-primary">✓</span>
+                <span className="text-umbanda-primary">Copiado</span>
               </>
             ) : (
               <>
@@ -85,114 +70,111 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
               </>
             )}
           </button>
-          <span className="text-xs text-umbanda-accent font-medium">
-            {latencyMs.toFixed(0)}ms
-          </span>
         </div>
-      </div>
 
-      <div className="answer-text text-umbanda-dark leading-relaxed">
-        {/* Detecta erro de quota e mostra aviso especial */}
-        {answer.includes('Limite de requisições atingido') || answer.toLowerCase().includes('quota') ? (
-          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
-            <ReactMarkdown 
-              remarkPlugins={[remarkGfm]}
-              components={{
-                strong: ({node, ...props}) => <strong className="font-bold text-yellow-900" {...props} />,
-                p: ({node, ...props}) => <p className="my-2 text-yellow-900" {...props} />,
-              }}
-            >
-              {answer}
-            </ReactMarkdown>
-          </div>
-        ) : (
-        <ReactMarkdown 
-          remarkPlugins={[remarkGfm]}
-          components={{
-            strong: ({node, ...props}) => <strong className="font-bold text-umbanda-dark" {...props} />,
-            em: ({node, ...props}) => <em className="italic" {...props} />,
-            ul: ({node, ...props}) => <ul className="list-disc ml-6 my-2 space-y-1" {...props} />,
-            ol: ({node, ...props}) => <ol className="list-decimal ml-6 my-2 space-y-1" {...props} />,
-            li: ({node, ...props}) => <li className="ml-1" {...props} />,
-            p: ({node, ...props}) => <p className="my-2" {...props} />,
-            h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-3" {...props} />,
-            h2: ({node, ...props}) => <h2 className="text-xl font-bold my-2" {...props} />,
-            h3: ({node, ...props}) => <h3 className="text-lg font-bold my-2" {...props} />,
-          }}
-        >
-          {answer}
-        </ReactMarkdown>
-          )}
-      </div>
-
-      {/* Sistema de avaliação */}
-      {question && (
-        <RatingWidget question={question} answer={answer} />
-      )}
-
-      {/* Documentos Consultados */}
-      {sources && sources.length > 0 && (
-        <div className="mt-6 pt-6 border-t-2 border-umbanda-light">
-          <button
-            onClick={() => setIsSourcesExpanded(!isSourcesExpanded)}
-            className="w-full flex items-center justify-between hover:bg-umbanda-light transition-colors rounded p-2 -mx-2"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-base font-semibold text-umbanda-primary">
-                📚 Documentos Consultados
-              </span>
-              <span className="text-sm text-umbanda-accent font-medium">
-                ({sources.length})
-              </span>
+        <div className="answer-text text-umbanda-text leading-relaxed">
+          {/* Detecta erro de quota e mostra aviso especial */}
+          {answer.includes('Limite de requisições atingido') || answer.toLowerCase().includes('quota') ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  strong: ({node, ...props}) => <strong className="font-bold text-yellow-900" {...props} />,
+                  p: ({node, ...props}) => <p className="my-2 text-yellow-900" {...props} />,
+                }}
+              >
+                {answer}
+              </ReactMarkdown>
             </div>
-            <svg
-              className={`w-5 h-5 text-umbanda-primary transition-transform duration-200 ${
-                isSourcesExpanded ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
+          ) : (
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]}
+            components={{
+              strong: ({node, ...props}) => <strong className="font-bold text-umbanda-primary" {...props} />,
+              em: ({node, ...props}) => <em className="italic text-umbanda-text/80" {...props} />,
+              ul: ({node, ...props}) => <ul className="list-disc ml-6 my-2 space-y-1" {...props} />,
+              ol: ({node, ...props}) => <ol className="list-decimal ml-6 my-2 space-y-1" {...props} />,
+              li: ({node, ...props}) => <li className="ml-1" {...props} />,
+              p: ({node, ...props}) => <p className="my-2" {...props} />,
+              h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-3 text-umbanda-primary" {...props} />,
+              h2: ({node, ...props}) => <h2 className="text-xl font-bold my-2 text-umbanda-primary" {...props} />,
+              h3: ({node, ...props}) => <h3 className="text-lg font-bold my-2 text-umbanda-primary" {...props} />,
+            }}
+          >
+            {answer}
+          </ReactMarkdown>
+            )}
+        </div>
 
-          {isSourcesExpanded && (
-            <div className="space-y-3 mt-4">
-              {sources.map((source, index) => (
-                <div
-                  key={index}
-                  className="border-l-4 border-umbanda-primary bg-umbanda-light p-4 rounded hover:bg-opacity-75 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <span className="font-semibold text-umbanda-primary break-words">
-                        {source.title}
-                      </span>
-                      <p className="text-sm text-umbanda-secondary mt-1">
-                        {source.page_end === source.page_start 
-                          ? `Página ${source.page_start}`
-                          : `Páginas ${source.page_start}–${source.page_end}`
-                        }
-                      </p>
-                      {source.score !== undefined && (
-                        <p className="text-xs text-umbanda-accent mt-2 font-medium">
-                          Relevância: {(source.score * 100).toFixed(0)}%
+        {/* Sistema de avaliação */}
+        {question && (
+          <RatingWidget question={question} answer={answer} />
+        )}
+
+        {/* Documentos Consultados */}
+        {sources && sources.length > 0 && (
+          <div className="mt-5 pt-5 border-t border-umbanda-clay/10">
+            <button
+              onClick={() => setIsSourcesExpanded(!isSourcesExpanded)}
+              className="w-full flex items-center justify-between hover:bg-umbanda-sand/50 transition-colors rounded-lg p-2 -mx-2"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-umbanda-primary">
+                  📚 Fontes Consultadas
+                </span>
+                <span className="text-xs px-2 py-0.5 bg-umbanda-gold/20 text-umbanda-primary rounded-full font-medium">
+                  {sources.length}
+                </span>
+              </div>
+              <svg
+                className={`w-4 h-4 text-umbanda-primary transition-transform duration-200 ${
+                  isSourcesExpanded ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {isSourcesExpanded && (
+              <div className="space-y-2 mt-3">
+                {sources.map((source, index) => (
+                  <div
+                    key={index}
+                    className="border-l-2 border-umbanda-gold bg-umbanda-sand/30 p-3 rounded-r-lg hover:bg-umbanda-sand/50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <span className="text-sm font-semibold text-umbanda-primary break-words">
+                          {source.title}
+                        </span>
+                        <p className="text-xs text-umbanda-text/70 mt-1">
+                          {source.page_end === source.page_start 
+                            ? `Página ${source.page_start}`
+                            : `Páginas ${source.page_start}–${source.page_end}`
+                          }
                         </p>
-                      )}
+                        {source.score !== undefined && (
+                          <p className="text-xs text-umbanda-gold mt-1 font-medium">
+                            Relevância: {(source.score * 100).toFixed(0)}%
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
