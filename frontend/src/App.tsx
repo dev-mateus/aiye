@@ -94,24 +94,24 @@ function ChatPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-umbanda-sand">
+    <div className="h-screen flex flex-col bg-umbanda-bg">
       {/* Progress Bar */}
       {isLoading && (
-        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-umbanda-gold via-umbanda-amber to-umbanda-gold z-50 progress-bar" />
+        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-umbanda-primary via-umbanda-forest to-umbanda-accent z-50 progress-bar" />
       )}
 
       {/* Header Minimalista */}
-      <div className="flex-shrink-0 border-b border-umbanda-clay/20 bg-white/80 backdrop-blur-sm">
+      <div className="flex-shrink-0 border-b border-umbanda-border bg-umbanda-dark/95 backdrop-blur-sm shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center">
-              <span className="text-umbanda-light text-lg">🕯️</span>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-gold to-umbanda-amber flex items-center justify-center shadow-lg">
+              <span className="text-lg">🕯️</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-umbanda-primary">
+              <h1 className="text-xl font-bold text-umbanda-text">
                 Aiye
               </h1>
-              <p className="text-xs text-umbanda-text/70">
+              <p className="text-xs text-umbanda-text-muted">
                 Sabedoria da Umbanda
               </p>
             </div>
@@ -124,7 +124,7 @@ function ChatPage() {
         <div className="max-w-3xl mx-auto px-4 py-6">
           {/* Status do Backend */}
           {!isBackendOnline && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl flex items-start gap-3">
+            <div className="mb-6 bg-red-900/20 border border-red-700/50 text-red-300 px-4 py-3 rounded-xl flex items-start gap-3">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -137,7 +137,7 @@ function ChatPage() {
               <div>
                 <p className="font-semibold">Backend Offline</p>
                 <p className="text-sm mt-1">
-                  Inicie o servidor: <code className="bg-red-100 px-2 py-1 rounded">
+                  Inicie o servidor: <code className="bg-red-950/50 px-2 py-1 rounded">
                     uvicorn backend.main:app --reload --port 8000
                   </code>
                 </p>
@@ -147,7 +147,7 @@ function ChatPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 bg-orange-50 border border-orange-200 text-orange-800 px-4 py-3 rounded-xl">
+            <div className="mb-6 bg-orange-900/20 border border-orange-700/50 text-orange-300 px-4 py-3 rounded-xl">
               <p className="font-semibold">⚠️ Erro</p>
               <p className="text-sm mt-1">{error}</p>
             </div>
@@ -160,10 +160,10 @@ function ChatPage() {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-umbanda-gold to-umbanda-amber mb-4 shadow-lg">
                   <span className="text-3xl">✨</span>
                 </div>
-                <h2 className="text-2xl font-bold text-umbanda-primary mb-2">
+                <h2 className="text-2xl font-bold text-umbanda-text mb-2">
                   Como posso ajudar?
                 </h2>
-                <p className="text-umbanda-text/70">
+                <p className="text-umbanda-text-muted">
                   Pergunte sobre Umbanda, Orixás, rituais e ensinamentos
                 </p>
               </div>
@@ -176,11 +176,11 @@ function ChatPage() {
                       key={index}
                       onClick={() => handleAsk(question)}
                       disabled={isLoading}
-                      className="text-left p-4 bg-white border border-umbanda-clay/20 rounded-xl hover:border-umbanda-gold hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                      className="text-left p-4 bg-umbanda-card border border-umbanda-border rounded-xl hover:border-umbanda-primary hover:bg-umbanda-dark hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-xl">💬</span>
-                        <span className="text-sm text-umbanda-text group-hover:text-umbanda-primary font-medium">
+                        <span className="text-sm text-umbanda-text group-hover:text-umbanda-forest font-medium">
                           {question}
                         </span>
                       </div>
@@ -196,12 +196,12 @@ function ChatPage() {
             <div key={index} className="space-y-4 mb-6">
               {/* Pergunta do Usuário */}
               <div className="flex gap-3 justify-end">
-                <div className="max-w-[80%] bg-white border border-umbanda-clay/20 rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm">
+                <div className="max-w-[80%] bg-umbanda-card border border-umbanda-border rounded-2xl rounded-tr-sm px-4 py-3 shadow-md">
                   <p className="text-umbanda-text">
                     {message.question}
                   </p>
                 </div>
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-clay to-umbanda-earth flex items-center justify-center">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center shadow-lg">
                   <span className="text-white text-sm">👤</span>
                 </div>
               </div>
@@ -211,8 +211,8 @@ function ChatPage() {
                 className="flex gap-3"
                 ref={index === chatHistory.length - 1 ? lastMessageRef : null}
               >
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center">
-                  <span className="text-umbanda-light text-sm">🕯️</span>
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-gold to-umbanda-amber flex items-center justify-center shadow-lg">
+                  <span className="text-lg">🕯️</span>
                 </div>
                 <div className="flex-1 max-w-[85%]">
                   <AnswerCard
@@ -230,7 +230,7 @@ function ChatPage() {
       </div>
 
       {/* Input Fixo no Bottom - Sempre Visível */}
-      <div className="flex-shrink-0 border-t border-umbanda-clay/20 bg-white/80 backdrop-blur-sm">
+      <div className="flex-shrink-0 border-t border-umbanda-border bg-umbanda-dark/95 backdrop-blur-sm shadow-2xl">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <ChatBox onSubmit={handleAsk} isLoading={isLoading} value={pendingQuestion} />
         </div>

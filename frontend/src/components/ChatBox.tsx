@@ -47,12 +47,12 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, value = "
             onKeyDown={handleKeyDown}
             placeholder="Pergunte sobre Umbanda..."
             disabled={isLoading}
-            className="w-full px-4 py-3 border border-umbanda-clay/20 rounded-xl 
-                     focus:outline-none focus:ring-2 focus:ring-umbanda-gold focus:border-transparent 
-                     disabled:bg-umbanda-sand/50 disabled:cursor-not-allowed
+            className="w-full px-4 py-3 border border-umbanda-border rounded-xl 
+                     focus:outline-none focus:ring-2 focus:ring-umbanda-primary focus:border-transparent 
+                     disabled:bg-umbanda-darker disabled:cursor-not-allowed
                      resize-none overflow-y-auto
-                     placeholder:text-umbanda-text/40
-                     bg-white/80 backdrop-blur-sm"
+                     placeholder:text-umbanda-text-muted
+                     bg-umbanda-card text-umbanda-text backdrop-blur-sm"
             rows={1}
             style={{
               minHeight: '48px',
@@ -64,9 +64,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, value = "
         <button
           type="submit"
           disabled={!isValid || isLoading}
-          className="px-5 py-3 bg-gradient-to-r from-umbanda-gold to-umbanda-amber
+          className="px-5 py-3 bg-gradient-to-r from-umbanda-primary to-umbanda-forest
                    text-white font-semibold rounded-xl
-                   hover:shadow-md hover:scale-105
+                   hover:shadow-lg hover:from-umbanda-forest hover:to-umbanda-accent hover:scale-105
                    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100
                    transition-all duration-200
                    flex items-center gap-2 h-12"
