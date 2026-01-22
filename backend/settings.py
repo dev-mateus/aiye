@@ -25,6 +25,9 @@ GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile")
 GROQ_BASE_URL: str = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 
+# Features
+ENABLE_LLM_EXPANSION: bool = os.getenv("ENABLE_LLM_EXPANSION", "false").lower() == "true"
+
 # Frontend
 VITE_API_BASE: str = os.getenv("VITE_API_BASE", "http://localhost:8000")
 

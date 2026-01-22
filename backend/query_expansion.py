@@ -26,7 +26,7 @@ Estratégias:
 """
 
 from typing import List, Dict, Optional
-import google.generativeai as genai
+# import google.generativeai as genai  # Desabilitado - migrando para Groq
 from . import settings
 
 
@@ -80,7 +80,9 @@ def expand_query_with_synonyms(query: str) -> List[str]:
 
 def expand_query_with_llm(query: str) -> List[str]:
     """
-    Expande query usando Gemini para gerar variações semânticas.
+        Expande query usando LLM para gerar variações semânticas.
+    
+        ⚠️ TEMPORARIAMENTE DESABILITADO - Em migração para Groq
     
     Args:
         query: Pergunta original do usuário
@@ -89,45 +91,51 @@ def expand_query_with_llm(query: str) -> List[str]:
         Lista de variações (inclui original)
     """
     if not settings.GOOGLE_API_KEY:
-        return [query]
+           # LLM expansion desabilitado temporariamente
+           return [query]
     
     try:
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        model = genai.GenerativeModel("gemini-2.5-flash")
+           # TODO: Reimplementar com Groq quando necessário
+           # Por enquanto, usa apenas sinônimos
+           return [query]
         
-        prompt = f"""Você é um especialista em Umbanda. Dada a pergunta do usuário, gere 2 reformulações alternativas que capturem a mesma intenção mas com palavras diferentes.
-
-PERGUNTA ORIGINAL:
-{query}
-
-INSTRUÇÕES:
-1. Mantenha o significado e intenção originais
-2. Use sinônimos e termos relacionados ao contexto de Umbanda
-3. Seja conciso (máximo 15 palavras por reformulação)
-4. Uma reformulação pode ser mais específica, outra mais geral
-5. Retorne apenas as 2 reformulações, separadas por |
-
-EXEMPLO:
-Pergunta: "O que são oferendas?"
-Reformulações: "Qual o significado de ebós e despachos?|Como funcionam as entregas aos Orixás?"
-
-REFORMULAÇÕES:"""
-
-        response = model.generate_content(prompt)
-        reformulations_text = response.text.strip()
-        
-        # Parse reformulações (separadas por |)
-        reformulations = [r.strip() for r in reformulations_text.split('|')]
-        reformulations = [r for r in reformulations if r and len(r) > 5][:2]
-        
-        # Combina original + reformulações
-        all_queries = [query] + reformulations
-        
-        print(f"🔄 Query expandida: '{query}' → {len(all_queries)} variações")
-        for i, q in enumerate(all_queries[1:], 1):
-            print(f"   {i}. {q}")
-        
-        return all_queries
+           # Código original comentado para futura migração:
+           # genai.configure(api_key=settings.GOOGLE_API_KEY)
+           # model = genai.GenerativeModel("gemini-2.5-flash")
+           # 
+           # prompt = f"""Você é um especialista em Umbanda. Dada a pergunta do usuário, gere 2 reformulações alternativas que capturem a mesma intenção mas com palavras diferentes.
+            # 
+            # PERGUNTA ORIGINAL:
+            # {query}
+            # 
+            # INSTRUÇÕES:
+            # 1. Mantenha o significado e intenção originais
+            # 2. Use sinônimos e termos relacionados ao contexto de Umbanda
+            # 3. Seja conciso (máximo 15 palavras por reformulação)
+            # 4. Uma reformulação pode ser mais específica, outra mais geral
+            # 5. Retorne apenas as 2 reformulações, separadas por |
+            # 
+            # EXEMPLO:
+            # Pergunta: "O que são oferendas?"
+            # Reformulações: "Qual o significado de ebós e despachos?|Como funcionam as entregas aos Orixás?"
+            # 
+            # REFORMULAÇÕES:"""
+            # 
+            # response = model.generate_content(prompt)
+            # reformulations_text = response.text.strip()
+            # 
+            # # Parse reformulações (separadas por |)
+            # reformulations = [r.strip() for r in reformulations_text.split('|')]
+            # reformulations = [r for r in reformulations if r and len(r) > 5][:2]
+            # 
+            # # Combina original + reformulações
+            # all_queries = [query] + reformulations
+            # 
+            # print(f"🔄 Query expandida: '{query}' → {len(all_queries)} variações")
+            # for i, q in enumerate(all_queries[1:], 1):
+            #     print(f"   {i}. {q}")
+            # 
+            # return all_queries
         
     except Exception as e:
         print(f"⚠️ Erro ao expandir query com LLM: {e}")
@@ -136,7 +144,7 @@ REFORMULAÇÕES:"""
 
 def expand_query_hybrid(
     query: str,
-    use_llm: bool = True,
+    use_llm: bool = settings.ENABLE_LLM_EXPANSION,
     use_synonyms: bool = True
 ) -> List[str]:
     """

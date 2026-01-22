@@ -328,7 +328,7 @@ def search(
     # === ETAPA 1: Query Expansion ===
     queries_to_search = [query]
     if use_query_expansion:
-        expander = get_query_expander()
+        expander = get_query_expander(use_llm=settings.ENABLE_LLM_EXPANSION, use_synonyms=True)
         queries_to_search = expander.expand(query)
         print(f"🔄 Query Expansion: 1 query → {len(queries_to_search)} queries")
     
