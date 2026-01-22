@@ -12,8 +12,16 @@ sys.path.insert(0, str(repo_root))
 
 def init_index():
     """Inicializa o índice FAISS se não existir."""
-    from backend import settings
-    from backend.rag import load_or_create_index
+    try:
+        from backend import settings
+    except Exception as e:
+        print(f"⚠️ Erro ao importar settings: {e}")
+        print("Usando paths padrão...")
+        # Fallback para paths padrão
+        class FallbackSettings:
+            INDEX_DIR = "backend/data/index"
+            PDF_DIR = "backend/data/pdfs"
+        settings = FallbackSettings()
     
     index_path = Path(settings.INDEX_DIR) / "index.faiss"
     metadata_path = Path(settings.INDEX_DIR) / "metadata.json"
@@ -51,14 +59,23 @@ def init_index():
     print(f"Encontrados {len(pdf_files)} PDFs")
     
     # Roda o ingest
-    from backend.ingest import ingest_all_pdfs
     try:
+        from backend.ingest import ingest_all_pdfs
         ingest_all_pdfs()
         print("✅ Índice inicializado com sucesso!")
+    except ImportError as e:
+        print(f"❌ Erro de importação: {e}")
+        print("⚠️ Pulando inicialização (será feito no primeiro warmup)")
+        # Não falha o build, apenas avisa
+        return
     except Exception as e:
         print(f"❌ Erro ao inicializar: {e}")
         import traceback
         traceback.print_exc()
+        # Não falha o build se já existir índice válido
+        if index_path.exists() and metadata_path.exists():
+            print("⚠️ Usando índice existente")
+            return
         sys.exit(1)
 
 if __name__ == "__main__":
