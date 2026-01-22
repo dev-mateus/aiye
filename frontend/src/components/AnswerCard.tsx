@@ -90,15 +90,15 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
           <ReactMarkdown 
             remarkPlugins={[remarkGfm]}
             components={{
-              strong: ({node, ...props}) => <strong className="font-bold text-umbanda-light" {...props} />,
+              strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />,
               em: ({node, ...props}) => <em className="italic text-white/90" {...props} />,
               ul: ({node, ...props}) => <ul className="list-disc ml-6 my-2 space-y-1" {...props} />,
               ol: ({node, ...props}) => <ol className="list-decimal ml-6 my-2 space-y-1" {...props} />,
               li: ({node, ...props}) => <li className="ml-1 text-white" {...props} />,
               p: ({node, ...props}) => <p className="my-2 text-white" {...props} />,
-              h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-3 text-umbanda-light" {...props} />,
-              h2: ({node, ...props}) => <h2 className="text-xl font-bold my-2 text-umbanda-light" {...props} />,
-              h3: ({node, ...props}) => <h3 className="text-lg font-bold my-2 text-umbanda-light" {...props} />,
+              h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-3 text-white" {...props} />,
+              h2: ({node, ...props}) => <h2 className="text-xl font-bold my-2 text-white" {...props} />,
+              h3: ({node, ...props}) => <h3 className="text-lg font-bold my-2 text-white" {...props} />,
             }}
           >
             {answer}
