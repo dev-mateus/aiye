@@ -48,7 +48,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
 
   return (
     <div className="animate-fade-in">
-      <div className="bg-umbanda-card backdrop-blur-sm rounded-2xl p-5 shadow-md border border-umbanda-border hover:shadow-lg hover:border-umbanda-primary/50 transition-all">
+      <div className="bg-umbanda-dark backdrop-blur-sm rounded-2xl p-5 shadow-md border border-umbanda-primary/30 hover:shadow-lg hover:border-umbanda-primary/50 transition-all">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-xs text-umbanda-text-muted font-medium">
             {latencyMs.toFixed(0)}ms
@@ -72,7 +72,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
           </button>
         </div>
 
-        <div className="answer-text text-umbanda-text leading-relaxed">
+        <div className="answer-text text-white/95 leading-relaxed">
           {/* Detecta erro de quota e mostra aviso especial */}
           {answer.includes('Limite de requisições atingido') || answer.toLowerCase().includes('quota') ? (
             <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-xl p-4">
@@ -90,15 +90,15 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
           <ReactMarkdown 
             remarkPlugins={[remarkGfm]}
             components={{
-              strong: ({node, ...props}) => <strong className="font-bold text-umbanda-forest" {...props} />,
+              strong: ({node, ...props}) => <strong className="font-bold text-umbanda-accent" {...props} />,
               em: ({node, ...props}) => <em className="italic text-umbanda-text-muted" {...props} />,
               ul: ({node, ...props}) => <ul className="list-disc ml-6 my-2 space-y-1" {...props} />,
               ol: ({node, ...props}) => <ol className="list-decimal ml-6 my-2 space-y-1" {...props} />,
               li: ({node, ...props}) => <li className="ml-1" {...props} />,
               p: ({node, ...props}) => <p className="my-2" {...props} />,
-              h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-3 text-umbanda-forest" {...props} />,
-              h2: ({node, ...props}) => <h2 className="text-xl font-bold my-2 text-umbanda-forest" {...props} />,
-              h3: ({node, ...props}) => <h3 className="text-lg font-bold my-2 text-umbanda-forest" {...props} />,
+              h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-3 text-umbanda-accent" {...props} />,
+              h2: ({node, ...props}) => <h2 className="text-xl font-bold my-2 text-umbanda-accent" {...props} />,
+              h3: ({node, ...props}) => <h3 className="text-lg font-bold my-2 text-umbanda-accent" {...props} />,
             }}
           >
             {answer}
@@ -119,7 +119,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
               className="w-full flex items-center justify-between hover:bg-umbanda-dark transition-colors rounded-lg p-2 -mx-2"
             >
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-umbanda-forest">
+                <span className="text-sm font-semibold text-umbanda-accent">
                   📚 Fontes Consultadas
                 </span>
                 <span className="text-xs px-2 py-0.5 bg-umbanda-primary/20 text-umbanda-accent rounded-full font-medium">
@@ -152,7 +152,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <span className="text-sm font-semibold text-umbanda-forest break-words">
+                        <span className="text-sm font-semibold text-umbanda-accent break-words">
                           {source.title}
                         </span>
                         <p className="text-xs text-umbanda-text-muted mt-1">
