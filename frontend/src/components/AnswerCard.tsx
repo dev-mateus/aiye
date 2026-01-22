@@ -92,6 +92,20 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
       </div>
 
       <div className="answer-text text-umbanda-dark leading-relaxed">
+        {/* Detecta erro de quota e mostra aviso especial */}
+        {answer.includes('Limite de requisições atingido') || answer.toLowerCase().includes('quota') ? (
+          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                strong: ({node, ...props}) => <strong className="font-bold text-yellow-900" {...props} />,
+                p: ({node, ...props}) => <p className="my-2 text-yellow-900" {...props} />,
+              }}
+            >
+              {answer}
+            </ReactMarkdown>
+          </div>
+        ) : (
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
           components={{
@@ -108,6 +122,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
         >
           {answer}
         </ReactMarkdown>
+          )}
       </div>
 
       {/* Sistema de avaliação */}

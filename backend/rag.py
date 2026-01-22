@@ -43,6 +43,7 @@ Responsável por:
 import json
 import os
 import uuid
+import time
 from pathlib import Path
 from typing import Optional, List, Dict
 
@@ -51,6 +52,7 @@ import fitz  # PyMuPDF
 import faiss
 from sentence_transformers import SentenceTransformer
 import google.generativeai as genai
+from google.api_core import exceptions as google_exceptions
 from . import settings
 from .cache import get_response_cache
 from .reranker import rerank_results
@@ -465,9 +467,40 @@ INSTRUÇÕES IMPORTANTES:
 - Se a informação não estiver nos documentos, responda: "Os documentos disponíveis tratam de [temas principais], mas não abordam especificamente [tema perguntado]."
 - Seja claro, didático e fiel ao conteúdo dos documentos"""
         
-        # Chama Gemini
-        response = model.generate_content(prompt)
-        answer = response.text.strip()
+            # Chama Gemini com retry e exponential backoff
+            max_retries = 3
+            retry_delay = 2  # segundos
+            answer = None
+        
+            for attempt in range(max_retries):
+                try:
+                    response = model.generate_content(prompt)
+                    answer = response.text.strip()
+                    break  # Sucesso, sai do loop
+                except google_exceptions.ResourceExhausted as e:
+                    # Erro 429 - Quota excedida
+                    if attempt < max_retries - 1:
+                        wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                        print(f"⚠️ Quota Gemini excedida. Tentativa {attempt + 1}/{max_retries}. Aguardando {wait_time}s...")
+                        time.sleep(wait_time)
+                    else:
+                        print(f"✗ Quota Gemini esgotada após {max_retries} tentativas")
+                        return (
+                            "🕐 **Limite de requisições atingido**\n\n"
+                            "Nosso sistema utiliza o Google Gemini API (tier gratuito: 5 requisições/minuto).\n\n"
+                            "**Por favor, aguarde 1 minuto e tente novamente.**\n\n"
+                            "💡 *Dica: Perguntas já feitas recentemente são respondidas instantaneamente do cache.*"
+                        )
+                except Exception as e:
+                    print(f"✗ Erro ao chamar Gemini (tentativa {attempt + 1}): {e}")
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                    else:
+                        return f"⚠️ Erro ao gerar resposta: {str(e)}"
+        
+            # Se não conseguiu resposta após retries
+            if answer is None:
+                return "Erro ao processar a pergunta. Por favor, tente novamente."
         
         # Validação básica
         if len(answer.strip()) < 15:
@@ -501,12 +534,21 @@ INSTRUÇÕES IMPORTANTES:
         # Retorna resposta do Gemini (as fontes são exibidas pelo frontend)
         return answer
         
+        except google_exceptions.ResourceExhausted as e:
+            # Erro 429 tratado acima, este é um fallback adicional
+            print(f"✗ Quota Gemini esgotada (exceção global): {e}")
+            return (
+                "🕐 **Limite de requisições atingido**\n\n"
+                "Nosso sistema utiliza o Google Gemini API (tier gratuito: 5 requisições/minuto).\n\n"
+                "**Por favor, aguarde 1 minuto e tente novamente.**\n\n"
+                "💡 *Dica: Perguntas já feitas recentemente são respondidas instantaneamente do cache.*"
+            )
     except Exception as e:
         print(f"Erro ao chamar Gemini: {e}")
         # Fallback: resposta simples se falhar
         return (
             f"Desculpe, ocorreu um erro ao processar sua pergunta: {str(e)}. "
-            "Por favor, consulte um dirigente ou tente novamente mais tarde."
+                "Por favor, tente novamente mais tarde."
         )
 
 
