@@ -31,7 +31,7 @@ function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
   const [pendingQuestion, setPendingQuestion] = useState<string>("");
-  const lastMessageRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -49,15 +49,12 @@ function ChatPage() {
 
   // Auto-scroll quando nova mensagem é adicionada
   useEffect(() => {
-    if (chatHistory.length > 0 && lastMessageRef.current) {
+    if (bottomRef.current) {
       setTimeout(() => {
-        lastMessageRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }, 100);
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
     }
-  }, [chatHistory.length]);
+  }, [chatHistory.length, pendingQuestion, isLoading]);
 
   const handleAsk = async (question: string) => {
     if (!isBackendOnline) {
@@ -184,10 +181,7 @@ function ChatPage() {
               </div>
               
               {/* Resposta da IA */}
-              <div 
-                className="flex"
-                ref={index === chatHistory.length - 1 ? lastMessageRef : null}
-              >
+              <div className="flex">
                 <div className="flex-1 max-w-[85%]">
                   <AnswerCard
                     answer={message.response.answer}
@@ -200,6 +194,30 @@ function ChatPage() {
               </div>
             </div>
           ))}
+
+          {/* Pergunta em andamento para manter visível enquanto carrega */}
+          {isLoading && pendingQuestion && (
+            <div className="space-y-4 mb-6">
+              <div className="flex justify-end">
+                <div className="max-w-[80%] bg-umbanda-card border border-umbanda-border rounded-2xl rounded-tr-sm px-4 py-3 shadow-md">
+                  <p className="text-umbanda-text">{pendingQuestion}</p>
+                </div>
+              </div>
+              <div className="flex">
+                <div className="flex-1 max-w-[85%]">
+                  <AnswerCard
+                    answer=""
+                    latencyMs={0}
+                    question=""
+                    sources={[]}
+                    isLoading
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
         </div>
       </div>
 
