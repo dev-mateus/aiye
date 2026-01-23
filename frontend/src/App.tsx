@@ -101,12 +101,9 @@ function ChatPage() {
       )}
 
       {/* Header Minimalista */}
-      <div className="flex-shrink-0 border-b border-umbanda-border bg-umbanda-dark/95 backdrop-blur-sm shadow-lg">
+      <div className="flex-shrink-0 border-b border-umbanda-border bg-umbanda-dark/95 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center shadow-lg">
-              <span className="text-lg">🕯️</span>
-            </div>
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-umbanda-text">
                 Aiye
@@ -124,24 +121,13 @@ function ChatPage() {
         <div className="max-w-3xl mx-auto px-4 py-6">
           {/* Status do Backend */}
           {!isBackendOnline && (
-            <div className="mb-6 bg-red-900/20 border border-red-700/50 text-red-300 px-4 py-3 rounded-xl flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div>
-                <p className="font-semibold">Backend Offline</p>
-                <p className="text-sm mt-1">
-                  Inicie o servidor: <code className="bg-red-950/50 px-2 py-1 rounded">
-                    uvicorn backend.main:app --reload --port 8000
-                  </code>
-                </p>
-              </div>
+            <div className="mb-6 bg-red-900/20 border border-red-700/50 text-red-300 px-4 py-3 rounded-xl">
+              <p className="font-semibold">Backend Offline</p>
+              <p className="text-sm mt-1">
+                Inicie o servidor: <code className="bg-red-950/50 px-2 py-1 rounded">
+                  uvicorn backend.main:app --reload --port 8000
+                </code>
+              </p>
             </div>
           )}
 
@@ -156,11 +142,8 @@ function ChatPage() {
           {/* Empty State com perguntas sugeridas */}
           {chatHistory.length === 0 && (
             <div className="py-12 space-y-8">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest mb-4 shadow-lg">
-                  <span className="text-3xl">✨</span>
-                </div>
-                <h2 className="text-2xl font-bold text-umbanda-text mb-2">
+              <div className="text-center space-y-3">
+                <h2 className="text-2xl font-bold text-umbanda-text">
                   Como posso ajudar?
                 </h2>
                 <p className="text-umbanda-text-muted">
@@ -176,14 +159,11 @@ function ChatPage() {
                       key={index}
                       onClick={() => handleAsk(question)}
                       disabled={isLoading}
-                      className="text-left p-4 bg-umbanda-card border border-umbanda-border rounded-xl hover:border-umbanda-primary hover:bg-umbanda-dark hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                      className="text-left p-4 bg-umbanda-card border border-umbanda-border rounded-xl hover:border-umbanda-primary hover:bg-umbanda-dark hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">💬</span>
-                        <span className="text-sm text-umbanda-text group-hover:text-umbanda-forest font-medium">
-                          {question}
-                        </span>
-                      </div>
+                      <span className="text-sm text-umbanda-text font-medium">
+                        {question}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -195,25 +175,19 @@ function ChatPage() {
           {chatHistory.map((message, index) => (
             <div key={index} className="space-y-4 mb-6">
               {/* Pergunta do Usuário */}
-              <div className="flex gap-3 justify-end">
+              <div className="flex justify-end">
                 <div className="max-w-[80%] bg-umbanda-card border border-umbanda-border rounded-2xl rounded-tr-sm px-4 py-3 shadow-md">
                   <p className="text-umbanda-text">
                     {message.question}
                   </p>
                 </div>
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center shadow-lg">
-                  <span className="text-white text-sm">👤</span>
-                </div>
               </div>
               
               {/* Resposta da IA */}
               <div 
-                className="flex gap-3"
+                className="flex"
                 ref={index === chatHistory.length - 1 ? lastMessageRef : null}
               >
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-umbanda-primary to-umbanda-forest flex items-center justify-center shadow-lg">
-                  <span className="text-lg">🕯️</span>
-                </div>
                 <div className="flex-1 max-w-[85%]">
                   <AnswerCard
                     answer={message.response.answer}

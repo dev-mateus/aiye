@@ -36,6 +36,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, value = "
   };
 
   const isValid = question.trim().length >= 3;
+  const isDisabled = !isValid || isLoading;
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
@@ -63,20 +64,13 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ onSubmit, isLoading, value = "
         
         <button
           type="submit"
-          disabled={!isValid || isLoading}
-          className="px-5 py-3 bg-gradient-to-r from-umbanda-primary to-umbanda-forest
-                   text-white font-semibold rounded-xl
-                   hover:shadow-lg hover:from-umbanda-forest hover:to-umbanda-accent hover:scale-105
-                   disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100
-                   transition-all duration-200
-                   flex items-center gap-2 h-12"
+          disabled={isDisabled}
+          className={`${isDisabled
+            ? "bg-umbanda-border text-umbanda-text cursor-not-allowed"
+            : "bg-umbanda-primary text-white hover:bg-umbanda-forest hover:shadow-lg hover:-translate-y-px"}
+            px-5 py-3 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 h-12 focus:outline-none focus:ring-2 focus:ring-umbanda-primary focus:ring-offset-0`}
         >
-          {isLoading ? (
-            <span className="animate-spin">⏳</span>
-          ) : (
-            <span>✨</span>
-          )}
-          <span className="hidden sm:inline">Enviar</span>
+          {isLoading ? "Enviando" : "Enviar"}
         </button>
       </div>
     </form>

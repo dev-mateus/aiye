@@ -26,7 +26,7 @@ export const SourceList: React.FC<SourceListProps> = ({ sources }) => {
       >
         <div className="flex items-center gap-2">
           <span className="text-lg font-semibold text-umbanda-primary">
-            📚 Documentos Consultados
+            Documentos consultados
           </span>
           <span className="text-sm text-umbanda-accent font-medium">
             ({sources.length})

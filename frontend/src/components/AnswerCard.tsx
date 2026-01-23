@@ -59,15 +59,9 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
             title="Copiar resposta"
           >
             {copySuccess ? (
-              <>
-                <span className="text-umbanda-forest">✓</span>
-                <span className="text-umbanda-forest">Copiado</span>
-              </>
+              <span className="text-umbanda-forest">Copiado</span>
             ) : (
-              <>
-                <span>📋</span>
-                <span>Copiar</span>
-              </>
+              <span>Copiar</span>
             )}
           </button>
         </div>
@@ -118,14 +112,9 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ answer, latencyMs, quest
               onClick={() => setIsSourcesExpanded(!isSourcesExpanded)}
               className="w-full flex items-center justify-between hover:bg-umbanda-dark transition-colors rounded-lg p-2 -mx-2"
             >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-umbanda-accent">
-                  📚 Fontes Consultadas
-                </span>
-                <span className="text-xs px-2 py-0.5 bg-umbanda-primary/20 text-umbanda-accent rounded-full font-medium">
-                  {sources.length}
-                </span>
-              </div>
+              <span className="text-sm font-semibold text-umbanda-accent">
+                Fontes consultadas ({sources.length})
+              </span>
               <svg
                 className={`w-4 h-4 text-umbanda-forest transition-transform duration-200 ${
                   isSourcesExpanded ? "rotate-180" : ""
