@@ -76,15 +76,4 @@ body {
 /* Markdown-like styling */
 .answer-text {
   line-height: 1.8;
-  color: #2D5016;
-}
-
-.answer-text strong {
-  color: #1F2937;
-  font-weight: 700;
-}
-
-.answer-text em {
-  color: #6BA586;
-  font-style: italic;
 }
