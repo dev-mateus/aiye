@@ -31,7 +31,7 @@ function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [isBackendOnline, setIsBackendOnline] = useState(true);
   const [pendingQuestion, setPendingQuestion] = useState<string>("");
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const lastQuestionRef = useRef<HTMLDivElement>(null);
 
   // Verifica saúde do backend ao montar
   useEffect(() => {
@@ -47,11 +47,11 @@ function ChatPage() {
     checkBackend();
   }, []);
 
-  // Auto-scroll quando nova mensagem é adicionada
+  // Auto-scroll para a última pergunta quando nova mensagem é adicionada
   useEffect(() => {
-    if (bottomRef.current) {
+    if (lastQuestionRef.current) {
       setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        lastQuestionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
     }
   }, [chatHistory.length, pendingQuestion, isLoading]);
@@ -172,7 +172,10 @@ function ChatPage() {
           {chatHistory.map((message, index) => (
             <div key={index} className="space-y-4 mb-6">
               {/* Pergunta do Usuário */}
-              <div className="flex justify-end">
+              <div 
+                className="flex justify-end"
+                ref={index === chatHistory.length - 1 ? lastQuestionRef : null}
+              >
                 <div className="max-w-[80%] bg-umbanda-card border border-umbanda-border rounded-2xl rounded-tr-sm px-4 py-3 shadow-md">
                   <p className="text-umbanda-text">
                     {message.question}
@@ -198,7 +201,7 @@ function ChatPage() {
           {/* Pergunta em andamento para manter visível enquanto carrega */}
           {isLoading && pendingQuestion && (
             <div className="space-y-4 mb-6">
-              <div className="flex justify-end">
+              <div className="flex justify-end" ref={lastQuestionRef}>
                 <div className="max-w-[80%] bg-umbanda-card border border-umbanda-border rounded-2xl rounded-tr-sm px-4 py-3 shadow-md">
                   <p className="text-umbanda-text">{pendingQuestion}</p>
                 </div>
@@ -216,8 +219,6 @@ function ChatPage() {
               </div>
             </div>
           )}
-
-          <div ref={bottomRef} />
         </div>
       </div>
 
